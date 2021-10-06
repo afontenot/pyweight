@@ -22,7 +22,7 @@ def plot(data, settings):
     info = ""
 
     # discontinuity every `cycle` days in the range
-    knots = [i * settings.cycle for i in range(1,1 + ((data.end_date - data.start_date).days - 1) // settings.cycle)]
+    knots = [i * settings.cycle for i in range(1,1 + (data.end_date - data.start_date).days // settings.cycle)]
 
     # spline interpolation: k=1 means linear fit, knots = chosen discontinuities
     # we use day numbers instead of dates directly because LSQUnivariateSpline
