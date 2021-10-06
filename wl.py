@@ -308,7 +308,7 @@ class MainWindow(QMainWindow):
         self.set_doc_widget_visibility(True)
 
 app = QApplication(sys.argv)
-app.setOrganizationName("Adam Fontenot");
+app.setOrganizationName("Adam Fontenot")
 app.setOrganizationDomain("adam.sh")
 app.setApplicationName("Weight Manager")
 w = MainWindow()
