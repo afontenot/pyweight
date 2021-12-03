@@ -153,11 +153,6 @@ class WeightLoss():
                 last_cycle_weight + (rate_kg * days_in_current_cycle),
                 self.settings.manual_body_fat * first_day_weight
             )
-            
-        # debug:
-        print(first_day_weight, last_cycle_weight, today_weight, last_cycle_weight + (rate_kg * days_in_current_cycle), self.settings.age, height_meters, self.settings.gender_prop)
-        print(cycle_delta_e, cycle_desired_delta_e)
-        print(self.knots)
         
         # calculate adjustment from difference between desired and actual
         self._adjustment = round((cycle_desired_delta_e - cycle_delta_e) / days_in_current_cycle)
