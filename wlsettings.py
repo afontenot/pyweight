@@ -1,19 +1,31 @@
 from PyQt5.QtCore import QSettings
 
+from wlbodymodel import initial_body_fat_est
+
 defaults = {
     "wlrate": 5,
     "cycle": 14,
     "path": "",
     "open_prev": True,
     "units": "lbs",
-    "always_show_adj": True
+    "always_show_adj": True,
+    "body_fat_method": "automatic",
+    "age": 25,
+    "height": 65,
+    "height_unit": "in",
+    "gender_prop": 0.5,
+    "manual_body_fat": 0.25
 }
 
 conversions = {
     "wlrate": float,
     "cycle": int,
     "open_prev": bool,
-    "always_show_adj": bool
+    "always_show_adj": bool,
+    "age": int,
+    "height": float,
+    "gender_prop": float,
+    "manual_body_fat": float
 }
 
 # Each property specified in the `defaults` dict can be accessed

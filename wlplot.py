@@ -4,8 +4,6 @@ from matplotlib import dates
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from scipy import interpolate
-
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, dpi=96):
         self.fig = Figure(dpi=dpi)
@@ -13,59 +11,38 @@ class MplCanvas(FigureCanvasQTAgg):
         super(MplCanvas, self).__init__(self.fig)
 
 # make a MPL canvas containing the requested plot
-def plot(data, settings):
+def plot(wl):
     canvas = MplCanvas()
 
-    # it's nice to plot something even if we can't interpolate
-    # so we'll selectively disable things.
-    can_interpolate = len(data.dates) > 1
+    # plot using the original independent variable, the date, to get nicer output
+    canvas.axes.plot(wl.data.dates, wl.data.weights, 'o', c="xkcd:burgundy", ms=4)
+
+    # if interpolation is available, plot it and provide advice
     info = ""
-
-    # discontinuity every `cycle` days in the range
-    knots = [i * settings.cycle for i in range(1,1 + (data.end_date - data.start_date).days // settings.cycle)]
-
-    # spline interpolation: k=1 means linear fit, knots = chosen discontinuities
-    # we use day numbers instead of dates directly because LSQUnivariateSpline
-    # can't handle dates; note that this is the number of days since the first
-    # record (not number of entries), so linear interpolation remains valid
-
-    # it's nice to plot *something* even if we can't interpolate
-    if can_interpolate:
-        interp = interpolate.LSQUnivariateSpline(data.daynumbers, data.weights, knots, k=1)
-
-        # calculate daily difference, in calories, between chosen rate and calculated rate
-        rate_diff = settings.rate - interp.derivative()(data.daynumbers[-1])
-        calorie_mult = 3500
-        if data.units == "kg":
-            calorie_mult *= 0.4536
-        adjust = int(calorie_mult * rate_diff)
+    if wl.interpolation:
+        canvas.axes.plot(wl.data.dates, wl.interpolation(wl.data.daynumbers), c="xkcd:dark navy blue")
 
         # Every `cycle` days, print out instructions
-        if data.daynumbers[-1] % settings.cycle == 0:
-            info = f"Consider adjusting intake by {adjust:+} calories per day."
+        if wl.data.daynumbers[-1] % wl.settings.cycle == 0:
+            info = f"Consider adjusting intake by {wl.adjustment:+} calories per day."
         else:
-            days_to_go = settings.cycle - (data.daynumbers[-1] % settings.cycle)
+            days_to_go = wl.settings.cycle - (wl.data.daynumbers[-1] % wl.settings.cycle)
             info = f"Continue current intake for next {days_to_go} days."
-            if settings.always_show_adj:
-                info += f" Adjustment value is {adjust:+}."
-
-    # plot using the original independent variable, the date, to get nicer output
-    canvas.axes.plot(data.dates, data.weights, 'o', c="xkcd:burgundy", ms=4)
-    if can_interpolate:
-        canvas.axes.plot(data.dates, interp(data.daynumbers), c="xkcd:dark navy blue")
+            if wl.settings.always_show_adj:
+                info += f" Adjustment value is {wl.adjustment:+}."
 
     # from here to the end of the method it's just formatting stuff
     # found by trial and error, mostly
     canvas.axes.set_xlabel("Date", labelpad=15)
-    canvas.axes.set_ylabel(data.weight_colname, labelpad=15)
+    canvas.axes.set_ylabel(wl.data.weight_colname, labelpad=15)
 
     # pick reasonable values if we haven't seen enough data
-    if (data.end_date - data.start_date).days < 14:
+    if (wl.data.end_date - wl.data.start_date).days < 14:
         canvas.axes.set_xlim(
-            left = data.start_date + timedelta(days=-1),
-            right = data.start_date + timedelta(days=15)
+            left = wl.data.start_date + timedelta(days=-1),
+            right = wl.data.start_date + timedelta(days=15)
         )
-    if len(data.dates) == 0:
+    if len(wl.data.dates) == 0:
         canvas.axes.set_ylim(bottom=90, top=200)
 
     canvas.fig.suptitle("Weight Tracking")
