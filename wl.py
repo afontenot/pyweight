@@ -172,9 +172,9 @@ class MainWindow(QMainWindow):
             for line in self.wt._data:
                 weight = line[2]
                 if convert_units == "kg":
-                    weight *= 0.4536
+                    weight *= 0.45359237
                 elif convert_units == "lbs":
-                    weight /= 0.4536
+                    weight /= 0.45359237
                 writer.writerow([line[1], weight])
         self.file_modified = False
         self.action_save.setEnabled(False)
