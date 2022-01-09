@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
 class PrefWindow(QDialog):
     def __init__(self, parent, *args, **kwargs):
