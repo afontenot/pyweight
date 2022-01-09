@@ -44,8 +44,6 @@ def initial_body_fat_est(weight, age, height, gender_prop):
 # calculate total caloric deficit associated with a given amount of weight loss
 # all parameters are in kilograms
 def delta_e(initial_w, previous_w, current_w, fat_i):
-    if not fat_i:
-        fat_i = initial_body_fat_est(initial_w, gender_prop)
     previous_delta_lean = delta_lean(previous_w - initial_w, fat_i)
     full_delta_lean = delta_lean(current_w - initial_w, fat_i)
     current_delta_lean = full_delta_lean - previous_delta_lean
@@ -153,7 +151,7 @@ class WeightLoss():
                 last_cycle_weight + (rate_kg * days_in_current_cycle),
                 self.settings.manual_body_fat * first_day_weight
             )
-        
+
         # calculate adjustment from difference between desired and actual
         self._adjustment = round((cycle_desired_delta_e - cycle_delta_e) / days_in_current_cycle)
         return self._adjustment
