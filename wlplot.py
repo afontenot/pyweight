@@ -1,3 +1,4 @@
+import sys
 from datetime import timedelta
 from dateutil import rrule
 from matplotlib import dates
@@ -52,6 +53,8 @@ def plot(wl):
     locator.intervald[rrule.MINUTELY] = [24 * 60]
     locator.intervald[rrule.SECONDLY] = [24 * 60 * 60]
     date_fmts = ['%b %Y', '%b %-d', '%b %-d', '%b %-d', '%b %-d', '%b %-d']
+    if sys.platform == "win32":
+        date_fmts = [x.replace('-', '#') for x in date_fmts]
     offset_fmts = ['', '%Y', '%Y', '%Y', '%Y', '%Y']
     formatter = dates.ConciseDateFormatter(locator, formats=date_fmts, offset_formats=offset_fmts)
     canvas.axes.xaxis.set_major_locator(locator)
