@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
             elif convert_units == "lbs":
                 weight_header = "Mass (lbs)"
             writer.writerow(["Date", self.wt.weight_colname])
-            for line in self.wt._data:
+            for line in self.wt.csvdata:
                 weight = line[2]
                 if convert_units == "kg":
                     weight *= 0.45359237

@@ -135,6 +135,10 @@ class WeightTable(QAbstractListModel):
         return [row[2] for row in self._data if row[2] != ""]
 
     @property
+    def csvdata(self):
+        return [row for row in self._data if row[0] <= self.end_date]
+
+    @property
     def daynumbers(self):
         # we offset the day count by 1 because otherwise it would take 
         # (cycle + 1) days to reach the first knot
