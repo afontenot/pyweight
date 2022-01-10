@@ -66,6 +66,9 @@ class WeightTable(QAbstractListModel):
             if value != "":
                 try:
                     value = float(value)
+                    # handle absurd values that might otherwise cause a crash
+                    if value > 2000:
+                        return False
                 except ValueError:
                     return False
             # access list in reverse order, third column
