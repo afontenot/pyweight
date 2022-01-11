@@ -28,7 +28,8 @@ def plot(wl):
             info = f"Consider adjusting intake by {wl.adjustment:+} calories per day."
         else:
             days_to_go = wl.settings.cycle - (wl.data.daynumbers[-1] % wl.settings.cycle)
-            info = f"Continue current intake for next {days_to_go} days."
+            plural = "s" if days_to_go > 1 else ""
+            info = f"Continue current intake for next {days_to_go} day{plural}."
             if wl.settings.always_show_adj:
                 info += f" Adjustment value is {wl.adjustment:+}."
 
