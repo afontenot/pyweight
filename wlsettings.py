@@ -13,6 +13,7 @@ defaults = {
     "age": 25,
     "height": 65,
     "height_unit": "in",
+    "gender_selection": "none",
     "gender_prop": 0.5,
     "manual_body_fat": 0.25
 }

@@ -28,6 +28,10 @@ class PrefWindow(QDialog):
         self.sex_slider.setValue(round(self.parent.settings.gender_prop * 100))
         self.manual_bfp_spinbox.setValue(self.parent.settings.manual_body_fat * 100)
         self._enable_disable_bfpitems(self.parent.settings.body_fat_method == "automatic")
+        self.bfp_female_radio.setChecked(self.parent.settings.gender_selection == "female")
+        self.bfp_male_radio.setChecked(self.parent.settings.gender_selection == "male")
+        self.bfp_othergender_radio.setChecked(self.parent.settings.gender_selection == "other")
+        self._enable_disable_customgender(self.parent.settings.gender_selection == "other")
 
         # connect signals
         self.kg_radio.toggled.connect(self.kg_radio_toggled)
@@ -40,8 +44,11 @@ class PrefWindow(QDialog):
         self.bfp_info_button.clicked.connect(self.bfp_info_button_clicked)
         self.age_spinbox.valueChanged.connect(self.changed_age)
         self.height_spinbox.valueChanged.connect(self.changed_height)
-        self.sex_slider.valueChanged.connect(self.changed_sex)
+        self.sex_slider.valueChanged.connect(self.changed_sex_prop)
         self.manual_bfp_spinbox.valueChanged.connect(self.changed_manual_bfp)
+        self.bfp_male_radio.toggled.connect(self.changed_gender)
+        self.bfp_female_radio.toggled.connect(self.changed_gender)
+        self.bfp_othergender_radio.toggled.connect(self.changed_gender)
 
         # set temporary variables that hold status while the window is open
         self.current_height_unit = self.parent.settings.height_unit
@@ -65,9 +72,7 @@ class PrefWindow(QDialog):
             self.age_spinbox,
             self.height_label,
             self.height_spinbox,
-            self.sex_label_1,
-            self.sex_label_2,
-            self.sex_slider
+            self.gender_selection_gbox
         )
         manual_items = (
             self.manual_bfp_label,
@@ -77,6 +82,16 @@ class PrefWindow(QDialog):
             item.setEnabled(automatic_mode)
         for item in manual_items:
             item.setEnabled(not automatic_mode)
+
+    def _enable_disable_customgender(self, is_other):
+        nonbinary_items = (
+            self.sex_label_1,
+            self.sex_label_2,
+            self.sex_slider,
+            self.usage_advice_label
+        )
+        for item in nonbinary_items:
+            item.setEnabled(is_other)
 
     def _set_height_ui_unit(self, unit):
         if self.current_height_unit == unit:
@@ -143,24 +158,25 @@ class PrefWindow(QDialog):
     def bfp_info_button_clicked(self):
         mbox = QMessageBox()
         mbox.setIcon(QMessageBox.Information)
-        mbox.setText("The automatic method attempts to guess your body fat " +
-                     "percentage using a method called CUN-BAE. This will " +
-                     "only be a rough estimate (usually accurate within 10%). " +
-                     "The program needs to know your initial BFP in order " +
-                     "to calculate how much fat you can expect to lose, and " +
-                     "how many calories that fat will contain. If you know " +
-                     "your exact body fat percentage, you should use the " +
-                     "Manual mode.\n\n" +
-                     "Most users will want to set the gender slider all the " +
-                     "way to either Female or Male. Unfortunately, most " +
-                     "published formulae for estimating body fat assume the " +
-                     "subject is a cisgender male or female. Users of the " +
-                     "program who are not male or female or are in the process " +
-                     "of hormone replacement therapy may find a binary choice " +
-                     "gives inaccurate results. Therefore, this program provides " +
-                     "a slider which will result in an estimate that is a linear " +
-                     "interpolation between the two, in the hope that this will " +
-                     "be useful to some users.")
+        mbox.setText(
+            "The program needs to know your initial body fat percentage (BFP) "
+            "in order to estimate how your body composition will change after "
+            "a given amount of body weight change. If you know your precise "
+            "BFP, you should use manual mode.\n\n"
+            "The automatic method attempts to estimate your BFP with the "
+            "CUN-BAE method. This will only be a rough estimate, but usually "
+            "gives a result within 10% of the true value.\n\n"
+            "Most users will want to set select either Female or Male. "
+            "Unfortunately, most published formulae for estimating body fat "
+            "assume the subject is a cisgender male or female. Users of the "
+            "program who are non-binary or are transgender and in the process "
+            "of hormone replacement therapy may find a binary choice gives "
+            "inaccurate results. Therefore, this program provides a slider "
+            "which uses a weighted average of the two options instead, in the "
+            "hope that the resulting approximation will be useful to some. "
+            "Clearly this approach will not suffice for everyone, and we "
+            "apologize for this limitation."
+        )
         mbox.exec()
 
     def changed_age(self, value):
@@ -175,9 +191,22 @@ class PrefWindow(QDialog):
         self.parent.changed_settings["height_unit"] = fn2
         self._set_modified()
 
-    def changed_sex(self, value):
+    def changed_sex_prop(self, value):
         def fn(): self.parent.settings.gender_prop = value / 100
         self.parent.changed_settings["gender_prop"] = fn
+        self._set_modified()
+
+    def changed_gender(self):
+        if self.bfp_male_radio.isChecked():
+            def fn(): self.parent.settings.gender_selection = "male"
+            self.parent.changed_settings["gender_selection"] = fn
+        elif self.bfp_female_radio.isChecked():
+            def fn(): self.parent.settings.gender_selection = "female"
+            self.parent.changed_settings["gender_selection"] = fn
+        elif self.bfp_othergender_radio.isChecked():
+            def fn(): self.parent.settings.gender_selection = "other"
+            self.parent.changed_settings["gender_selection"] = fn
+        self._enable_disable_customgender(self.bfp_othergender_radio.isChecked())
         self._set_modified()
 
     def changed_manual_bfp(self, value):

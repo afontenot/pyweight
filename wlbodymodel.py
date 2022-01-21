@@ -121,6 +121,14 @@ class WeightLoss():
         elif self.settings.height_unit == "cm":
             height_meters *= 0.01        
         
+        gender_proportion = 0.5
+        if self.settings.gender_selection == "female":
+            gender_proportion = 0
+        elif self.settings.gender_selection == "male":
+            gender_proportion = 1
+        elif self.settings.gender_selection == "other":
+            gender_proportion = self.settings.gender_prop
+
         if self.settings.body_fat_method == "automatic":
             cycle_delta_e = delta_e_auto(
                 first_day_weight,
@@ -128,7 +136,7 @@ class WeightLoss():
                 today_weight,
                 self.settings.age,
                 height_meters,
-                self.settings.gender_prop
+                gender_proportion
             )
             cycle_desired_delta_e = delta_e_auto(
                 first_day_weight,
@@ -136,7 +144,7 @@ class WeightLoss():
                 last_cycle_weight + (rate_kg * days_in_current_cycle),
                 self.settings.age,
                 height_meters,
-                self.settings.gender_prop
+                gender_proportion
             )
         else:
             cycle_delta_e = delta_e(
