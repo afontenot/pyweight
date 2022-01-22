@@ -41,13 +41,10 @@ class WlSettings(QSettings):
 
     def __getattr__(self, attr):
         if attr in defaults:
-            # QSettings saves bool False as "false"; workaround:
-            if conversions.get(attr) == bool:
-                value = super().value(attr, defaults[attr], type=bool)
-            else:
-                value = super().value(attr, defaults[attr])
-            if attr in conversions:
-                value = conversions[attr](value)
+            # we expect anything with no conversion to return a str, so
+            # make this assumption explicit
+            conversion = conversions.get(attr, str)
+            value = super().value(attr, defaults[attr], type=conversion)
             return value
         return super().__getattr__(attr)
 
