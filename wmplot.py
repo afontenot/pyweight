@@ -12,39 +12,45 @@ class MplCanvas(FigureCanvasQTAgg):
         super(MplCanvas, self).__init__(self.fig)
 
 # make a MPL canvas containing the requested plot
-def plot(wl):
+def plot(wtracker):
     canvas = MplCanvas()
 
     # plot using the original independent variable, the date, to get nicer output
-    canvas.axes.plot(wl.data.dates, wl.data.weights, 'o', c="xkcd:burgundy", ms=4)
+    canvas.axes.plot(wtracker.data.dates,
+                     wtracker.data.weights,
+                     'o', 
+                     c="xkcd:burgundy", 
+                     ms=4)
 
     # if interpolation is available, plot it and provide advice
     info = ""
-    if wl.interpolation:
-        canvas.axes.plot(wl.data.dates, wl.interpolation(wl.data.daynumbers), c="xkcd:dark navy blue")
+    if wtracker.interpolation:
+        canvas.axes.plot(wtracker.data.dates, 
+                         wtracker.interpolation(wtracker.data.daynumbers), 
+                         c="xkcd:dark navy blue")
 
         # Every `cycle` days, print out instructions
-        if wl.data.daynumbers[-1] % wl.settings.cycle == 0:
-            info = f"Consider adjusting intake by {wl.adjustment:+} calories per day."
+        if wtracker.data.daynumbers[-1] % wtracker.settings.cycle == 0:
+            info = f"Consider adjusting intake by {wtracker.adjustment:+} calories per day."
         else:
-            days_to_go = wl.settings.cycle - (wl.data.daynumbers[-1] % wl.settings.cycle)
+            days_to_go = wtracker.settings.cycle - (wtracker.data.daynumbers[-1] % wtracker.settings.cycle)
             plural = "s" if days_to_go > 1 else ""
             info = f"Continue current intake for next {days_to_go} day{plural}."
-            if wl.settings.always_show_adj:
-                info += f" Adjustment value is {wl.adjustment:+}."
+            if wtracker.settings.always_show_adj:
+                info += f" Adjustment value is {wtracker.adjustment:+}."
 
     # from here to the end of the method it's just formatting stuff
     # found by trial and error, mostly
     canvas.axes.set_xlabel("Date", labelpad=15)
-    canvas.axes.set_ylabel(wl.data.weight_colname, labelpad=15)
+    canvas.axes.set_ylabel(wtracker.data.weight_colname, labelpad=15)
 
     # pick reasonable values if we haven't seen enough data
-    if (wl.data.end_date - wl.data.start_date).days < 14:
+    if (wtracker.data.end_date - wtracker.data.start_date).days < 14:
         canvas.axes.set_xlim(
-            left = wl.data.start_date + timedelta(days=-1),
-            right = wl.data.start_date + timedelta(days=15)
+            left = wtracker.data.start_date + timedelta(days=-1),
+            right = wtracker.data.start_date + timedelta(days=15)
         )
-    if len(wl.data.dates) == 0:
+    if len(wtracker.data.dates) == 0:
         canvas.axes.set_ylim(bottom=90, top=200)
 
     canvas.fig.suptitle("Weight Tracking")

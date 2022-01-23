@@ -7,12 +7,12 @@ from PyQt5 import uic
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMainWindow, QMessageBox
 
-from wlplot import plot
+from wmplot import plot
 from wmabout import AboutWindow
-from wlbodymodel import WeightTracker
-from wldatamodel import WeightTable
+from wmbodymodel import WeightTracker
+from wmdatamodel import WeightTable
 from wmprefs import Preferences, PreferencesWindow
-from wlprofile import Profile, ProfileWindow
+from wmprofile import Profile, ProfileWindow
 
 # This file contains the code for initialization and the main window class.
 

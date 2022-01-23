@@ -5,8 +5,8 @@ from PyQt5.QtCore import QSettings
 # including proper handling of type conversions and defaults
 
 # Each property specified in the `defaults` dict can be accessed
-# directly as a property of a WlSettings instance.
-class WlSettings(QSettings):
+# directly as a property of a WmSettings instance.
+class WMSettings(QSettings):
     def __init__(self, defaults, conversions, path=None):
         if path:
             super().__init__(path, QSettings.IniFormat)

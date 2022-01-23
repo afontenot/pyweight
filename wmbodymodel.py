@@ -81,7 +81,7 @@ def height_in_meters(height, unit):
 class WeightTracker():
     def __init__(self, data, settings):
         self.data = data # data from a WeightTable
-        self.settings = settings # a WlSettings
+        self.settings = settings # a WMSettings
         self._interpolation = None
         self._adjustment = None
         self._knots = None
@@ -123,12 +123,12 @@ class WeightTracker():
         today_weight = self.interpolation(today) * weight_mult
         first_day_weight = self.interpolation(first_day) * weight_mult
         last_cycle_weight = self.interpolation(last_cycle) * weight_mult
-        rate_kg = self.settings.wlrate * weight_mult
+        rate_kg = self.settings.wcrate * weight_mult
 
         # get caloric deficit associated with the current cycle *and*
         # caloric deficit associated with desired weight loss this cycle
 
-        # use number of days into present cycle to calculate expected wl
+        # use number of days into present cycle to calculate expected change
         days_in_current_cycle = today - last_cycle
 
         # convert to meters

@@ -62,7 +62,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QDoubleSpinBox" name="wlrate_spin_box">
+         <widget class="QDoubleSpinBox" name="wcrate_spin_box">
           <property name="suffix">
            <string> lbs/wk</string>
           </property>

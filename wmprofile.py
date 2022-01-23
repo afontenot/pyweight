@@ -1,11 +1,11 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
-from wlsettings import WlSettings
+from wmsettings import WMSettings
 
-class Profile(WlSettings):
+class Profile(WMSettings):
     defaults = {
-        "wlrate": -1/7, # lbs/day
+        "wcrate": -1/7, # lbs/day
         "cycle": 14,
         "path": "",
         "units": "imperial",
@@ -19,7 +19,7 @@ class Profile(WlSettings):
     }
 
     conversions = {
-        "wlrate": float,
+        "wcrate": float,
         "cycle": int,
         "always_show_adj": bool,
         "age": int,
@@ -64,7 +64,7 @@ class ProfileWindow(QDialog):
         self.bfp_info_button.clicked.connect(self.bfp_info_button_clicked)
         self.age_spinbox.valueChanged.connect(self.changed_age)
         self.height_spinbox.valueChanged.connect(self.changed_height)
-        self.wlrate_spin_box.valueChanged.connect(self.changed_wlrate)
+        self.wcrate_spin_box.valueChanged.connect(self.changed_wcrate)
         self.sex_slider.valueChanged.connect(self.changed_sex_prop)
         self.manual_bfp_spinbox.valueChanged.connect(self.changed_manual_bfp)
         self.bfp_male_radio.toggled.connect(self.changed_gender)
@@ -101,8 +101,8 @@ class ProfileWindow(QDialog):
 
         # special handling for inputs with units attached
         # we convert here from <unit>/day to <unit>/wk
-        self.wlrate_spin_box.setValue(self.parent.plan.wlrate * 7)
-        self.wlrate_spin_box.setSuffix(f" {self.parent.plan.weight_unit}/wk")
+        self.wcrate_spin_box.setValue(self.parent.plan.wcrate * 7)
+        self.wcrate_spin_box.setSuffix(f" {self.parent.plan.weight_unit}/wk")
         self.height_spinbox.setValue(self.parent.plan.height)
         self.height_spinbox.setSuffix(f" {self.parent.plan.height_unit}")
 
@@ -161,28 +161,28 @@ class ProfileWindow(QDialog):
     def _set_weight_ui_unit(self, unit):
         if self.current_weight_unit == unit:
             return
-        current_target = self.wlrate_spin_box.value()
+        current_target = self.wcrate_spin_box.value()
         if unit == "kg":
-            self.wlrate_spin_box.setValue(current_target * 0.45359237)
-            self.wlrate_spin_box.setMinimum(-3 * 0.45359237)
-            self.wlrate_spin_box.setMaximum(3 * 0.45359237)
+            self.wcrate_spin_box.setValue(current_target * 0.45359237)
+            self.wcrate_spin_box.setMinimum(-3 * 0.45359237)
+            self.wcrate_spin_box.setMaximum(3 * 0.45359237)
         elif unit == "lbs":
-            self.wlrate_spin_box.setValue(current_target / 0.45359237)
-            self.wlrate_spin_box.setMinimum(-3)
-            self.wlrate_spin_box.setMaximum(3)
+            self.wcrate_spin_box.setValue(current_target / 0.45359237)
+            self.wcrate_spin_box.setMinimum(-3)
+            self.wcrate_spin_box.setMaximum(3)
         else:
             raise ValueError("Invalid unit: " + str(unit))
-        self.wlrate_spin_box.setSuffix(f" {unit}/wk")
+        self.wcrate_spin_box.setSuffix(f" {unit}/wk")
         self.current_weight_unit = unit
 
     def import_profile(self):
-        path = QFileDialog.getOpenFileName(self, "Import Profile", filter="Profile Files (*.wlprofile)")
+        path = QFileDialog.getOpenFileName(self, "Import Profile", filter="Profile Files (*.wmprofile)")
         if path[0] != "":
             self.parent.plan.importprofile(path)
             self._init_gui()
 
     def export_profile(self):
-        path = QFileDialog.getSaveFileName(self, "Export Profile", filter="Profile Files (*.wlprofile)")
+        path = QFileDialog.getSaveFileName(self, "Export Profile", filter="Profile Files (*.wmprofile)")
         if path[0] != "":
             self.parent.plan.exportprofile(path)
 
@@ -266,10 +266,10 @@ class ProfileWindow(QDialog):
         self.parent.inflight_profile_changes["height"] = fn
         self._set_modified()
 
-    def changed_wlrate(self, value):
+    def changed_wcrate(self, value):
         # we convert here from <unit>/wk to <unit>/day
-        def fn(): self.parent.plan.wlrate = value / 7
-        self.parent.inflight_profile_changes["wlrate"] = fn
+        def fn(): self.parent.plan.wcrate = value / 7
+        self.parent.inflight_profile_changes["wcrate"] = fn
         self._set_modified()
 
     def changed_sex_prop(self, value):

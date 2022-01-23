@@ -1,9 +1,9 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox
 
-from wlsettings import WlSettings
+from wmsettings import WMSettings
 
-class Preferences(WlSettings):
+class Preferences(WMSettings):
     defaults = {
         "open_prev": True,
         "prev_plan": "",
