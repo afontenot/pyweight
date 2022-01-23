@@ -113,7 +113,7 @@ class ProfileWindow(QDialog):
     def _apply_changes(self):
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.config_buttons.button(QDialogButtonBox.Apply).setEnabled(False)
-        self.parent.save_prefs()
+        self.parent.save_prefs(self.parent.inflight_profile_changes)
         self.parent.refresh()
         # need to refresh GUI to pick up changes to units, if any
         self._init_gui()
