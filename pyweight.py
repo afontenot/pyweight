@@ -97,10 +97,11 @@ class MainWindow(QMainWindow):
             writer.writerow(["Date", weight_header])
             for line in self.wt.csvdata:
                 weight = line[2]
-                if self.plan.weight_unit == "kg":
-                    weight *= 0.45359237
-                elif self.plan.weight_unit == "lbs":
-                    weight /= 0.45359237
+                if convert_units:
+                    if self.plan.weight_unit == "kg":
+                        weight *= 0.45359237
+                    elif self.plan.weight_unit == "lbs":
+                        weight /= 0.45359237
                 writer.writerow([line[1], weight])
         self.file_modified = False
         self.action_save_file.setEnabled(False)
