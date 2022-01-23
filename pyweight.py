@@ -267,6 +267,9 @@ class MainWindow(QMainWindow):
             self.centralwidget.layout().addWidget(self.canvas)
             self.centralwidget.layout().setStretch(0, 1)
             self.centralwidget.layout().setStretch(1, 4)
+        # It seems expensive to recreate this class and do a complete redraw
+        # every time, but WT is extremely dependent on specific details. For
+        # example, even one new data point will change the spline fit.
         weightloss = WeightTracker(self.wt, self.plan)
         self.canvas.plot(weightloss)
         self.canvas.draw()
