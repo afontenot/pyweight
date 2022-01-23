@@ -4,8 +4,8 @@ import sys
 from datetime import datetime
 
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMainWindow, QMessageBox
+from PyQt5.QtGui import QPixmap, QKeySequence
+from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMainWindow, QMessageBox, QShortcut, QAbstractItemDelegate
 
 from wmabout import AboutWindow
 from wmbodymodel import WeightTracker
@@ -33,6 +33,8 @@ class MainWindow(QMainWindow):
         self.plan = None
         self.canvas = None
         self.table_is_loaded = False
+        # sometimes we need to move focus down a row after a QTableView update
+        self.table_needs_focusmove = False
         self.inflight_profile_changes = {}
         self.inflight_preference_changes = {}
         self.wt = None
@@ -58,6 +60,10 @@ class MainWindow(QMainWindow):
 
         # initialize GUI
         self.refresh_actions()
+
+        # special return key handling for tableView (move down one line)
+        self._return_shortcut = QShortcut(QKeySequence("Return"), self.tableView)
+        self._return_shortcut.activated.connect(self.return_key_activated)
 
         self.show()
 
@@ -247,10 +253,32 @@ class MainWindow(QMainWindow):
 
     def table_changed(self):
         if self.table_is_loaded:
+            if self.table_needs_focusmove:
+                self.tableView.focusNextChild()
+                self.table_needs_focusmove = False
             self.file_modified = True
             self.action_save_file.setEnabled(True)
             self.update_window_title()
             self.refresh()
+
+    def update_table(self):
+        self.table_is_loaded = False
+        self.tableView.setModel(self.wt)
+        self.table_is_loaded = True
+        self.tableView.setVisible(True)
+
+    # fires when enter key is pressed on QTableView widget
+    # we catch this to move down the list in our model
+    def return_key_activated(self):
+        index = self.tableView.currentIndex()
+        if self.tableView.isPersistentEditorOpen(index):
+            editor = self.tableView.indexWidget(index)
+            self.tableView.commitData(editor)
+            self.tableView.closeEditor(editor, QAbstractItemDelegate.NoHint)
+            # flag will result in next item being focused when table_changed fires
+            self.table_needs_focusmove = True
+        else:
+            self.tableView.edit(index)
 
     def update_window_title(self):
         title = "Weight Manager"
@@ -273,12 +301,6 @@ class MainWindow(QMainWindow):
         weightloss = WeightTracker(self.wt, self.plan)
         self.canvas.plot(weightloss)
         self.canvas.draw()
-
-    def update_table(self):
-        self.table_is_loaded = False
-        self.tableView.setModel(self.wt)
-        self.table_is_loaded = True
-        self.tableView.setVisible(True)
 
     # reimplementation from QMainWindow to handle window close
     def closeEvent(self, event=None):
