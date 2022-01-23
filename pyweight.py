@@ -233,6 +233,7 @@ class MainWindow(QMainWindow):
         self.update_table()
         self.refresh()
         self.refresh_actions()
+        self.tableView.scrollToBottom()
 
         self.wt.dataChanged.connect(self.table_changed)
 
