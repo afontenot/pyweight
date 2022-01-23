@@ -7,10 +7,10 @@ from PyQt5 import uic
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMainWindow, QMessageBox
 
-from wmplot import plot
 from wmabout import AboutWindow
 from wmbodymodel import WeightTracker
 from wmdatamodel import WeightTable
+from wmplot import Canvas
 from wmprefs import Preferences, PreferencesWindow
 from wmprofile import Profile, ProfileWindow
 
@@ -262,13 +262,14 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
 
     def update_plot(self):
-        if self.canvas:
-            self.centralwidget.layout().removeWidget(self.canvas)
+        if not self.canvas:
+            self.canvas = Canvas()
+            self.centralwidget.layout().addWidget(self.canvas)
+            self.centralwidget.layout().setStretch(0, 1)
+            self.centralwidget.layout().setStretch(1, 4)
         weightloss = WeightTracker(self.wt, self.plan)
-        self.canvas = plot(weightloss)
-        self.centralwidget.layout().addWidget(self.canvas)
-        self.centralwidget.layout().setStretch(0, 1)
-        self.centralwidget.layout().setStretch(1, 4)
+        self.canvas.plot(weightloss)
+        self.canvas.draw()
 
     def update_table(self):
         self.table_is_loaded = False
