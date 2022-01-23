@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
         ret = profile_window.exec()
         if ret != QDialog.Accepted:
             return
-        self.save_prefs(self.inflight_profile_changes)
+        self.save_prefs(self.inflight_profile_changes, mode)
         if not mode == "new":
             self.refresh()
 
@@ -196,16 +196,15 @@ class MainWindow(QMainWindow):
                 self.save_file()
             return resp
 
-    def save_prefs(self, prefs_list):
-        # special handling if the user changed the default units
+    def save_prefs(self, prefs_list, mode=None):
+        # we have a bunch of functions to run that apply the updates
         for setting in prefs_list:
-            # we have a bunch of functions to run that apply the updates
             prefs_list[setting]()
-            # if the units changed as the result of the previous step,
-            # we resave the user's data file to use the preferred units
-            if setting == "units" and self.plan.units != self.wt.units:
-                self.save_file(True)
-                self.open_data_file()
+        # if the units changed as the result of the previous step,
+        # we resave the user's data file to use the preferred units
+        if self.plan.units != self.wt.units and mode != "new":
+            self.save_file(True)
+            self.open_data_file()
         prefs_list = {}
 
     def open_data_file(self):
