@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
             prefs_list[setting]()
         # if the units changed as the result of the previous step,
         # we resave the user's data file to use the preferred units
-        if self.plan.units != self.wt.units and mode != "new":
+        if self.plan.weight_unit != self.wt.units and mode != "new":
             self.save_file(True)
             self.open_data_file()
         prefs_list = {}
