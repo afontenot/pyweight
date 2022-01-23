@@ -8,10 +8,11 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMainWindow, QMessageBox
 
 from wlplot import plot
-from wlsettings import WlSettings
-from wlbodymodel import WeightLoss
+from wmabout import AboutWindow
+from wlbodymodel import WeightTracker
 from wldatamodel import WeightTable
-from wlprefs import PrefWindow
+from wmprefs import Preferences, PreferencesWindow
+from wlprofile import Profile, ProfileWindow
 
 # This file contains the code for initialization and the main window class.
 
@@ -21,37 +22,168 @@ class MainWindow(QMainWindow):
         uic.loadUi("ui/main.ui", self)
 
         # disable save until a file is edited
-        self.action_save.setEnabled(False)
+        self.action_save_file.setEnabled(False)
 
         # initially hide the widgets before file is loaded
-        self.set_doc_widget_visibility(False)
+        self.tableView.setVisible(False)
 
         # status variables
         self.file_open = False
         self.file_modified = False
+        self.plan = None
         self.canvas = None
         self.table_is_loaded = False
-        self.changed_settings = {}
-        self.units_changed = False
+        self.inflight_profile_changes = {}
+        self.inflight_preference_changes = {}
+        self.wt = None
 
-        # initialize settings
-        self.settings = WlSettings()
-        self.wlrate_spin_box.setValue(self.settings.wlrate)
-        if self.settings.open_prev and self.settings.path != "":
-            self.open_file()
+        # initialize preferences
+        self.prefs = Preferences()
+        if self.prefs.open_prev and self.prefs.prev_plan != "":
+            self.open_plan_file(self.prefs.prev_plan)
 
         # connect signals
-        self.action_new.triggered.connect(self.new_file)
-        self.action_open.triggered.connect(self.open_file_dialog)
-        self.action_save.triggered.connect(self.save_file)
+        self.action_new_file.triggered.connect(self.new_file)
+        self.action_open_file.triggered.connect(self.open_file)
+        self.action_save_file.triggered.connect(self.save_file)
+        self.action_new_plan.triggered.connect(self.new_plan)
+        self.action_open_plan.triggered.connect(self.open_plan)
+        self.action_quit.triggered.connect(self.close)
         self.action_refresh.triggered.connect(self.refresh)
-        self.action_save_graph.triggered.connect(self.save_graph)
-        self.action_preferences.triggered.connect(self.show_prefs)
-        self.wlrate_spin_box.valueChanged.connect(self.changed_wlrate)
+        self.action_export.triggered.connect(self.save_graph)
+        self.action_plan_settings.triggered.connect(self.edit_plan)
+        self.action_pyweight_settings.triggered.connect(self.edit_preferences)
+        self.action_about.triggered.connect(self.show_about)
+        self.action_user_guide.triggered.connect(self.show_help)
+
+        # initialize GUI
+        self.refresh_actions()
 
         self.show()
 
-    def checkFileModified(self):
+    ## connected callbacks for main window actions
+
+    def new_file(self):
+        path = QFileDialog.getSaveFileName(self, "New File", filter="CSV Files (*.csv)")
+        if path[0] != "":
+            if self.check_file_modified() == QMessageBox.Cancel:
+                return
+            with open(path[0], "w", newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                # header
+                writer.writerow(["Date", f"Mass ({self.plan.weight_unit})"])
+                today = datetime.now()
+                writer.writerow([today.strftime("%Y/%m/%d"), ""])
+            self.plan.path = path[0]
+            self.open_data_file()
+
+    def open_file(self):
+        path = QFileDialog.getOpenFileName(self, "Open File", filter="CSV Files (*.csv)")
+        if path[0] != "":
+            if self.check_file_modified() == QMessageBox.Cancel:
+                return
+            self.plan.path = path[0]
+            self.open_data_file()
+
+    # if convert_units is set, the existing file data
+    # will be converted to those units (from the other one)
+    def save_file(self, convert_units=False):
+        with open(self.plan.path, "w", newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            # header
+            weight_header = self.wt.weight_colname
+            if convert_units:
+                weight_header = f"Mass ({self.plan.weight_unit})"
+            writer.writerow(["Date", weight_header])
+            for line in self.wt.csvdata:
+                weight = line[2]
+                if self.plan.weight_unit == "kg":
+                    weight *= 0.45359237
+                elif self.plan.weight_unit == "lbs":
+                    weight /= 0.45359237
+                writer.writerow([line[1], weight])
+        self.file_modified = False
+        self.action_save_file.setEnabled(False)
+        self.update_window_title()
+
+    def new_plan(self):
+        path = QFileDialog.getSaveFileName(self, "New File", filter="Plan Files (*.wmplan)")
+        if path[0] != "":
+            self.open_plan_file(path[0])
+            self.edit_plan(mode="new")
+        return
+
+    def open_plan(self):
+        path = QFileDialog.getOpenFileName(self, "Open File", filter="Plan Files (*.wmplan)")
+        if path[0] != "":
+            if self.check_file_modified() == QMessageBox.Cancel:
+                return
+            self.open_plan_file(path[0])
+
+    def refresh(self):
+        self.wt.add_dates()
+        self.update_plot()
+
+    # TODO: implement other save formats (svg, pdf?)
+    def save_graph(self):
+        if not self.canvas:
+            return
+        path = QFileDialog.getSaveFileName(self, "Save File", filter="PNG Files (*.png)")
+        if path[0] != "":
+            pix = QPixmap(self.canvas.size())
+            self.canvas.render(pix)
+            pix.save(path[0], "PNG")
+
+    def edit_plan(self, mode=None):
+        profile_window = ProfileWindow(self, mode)
+        ret = profile_window.exec()
+        if ret != QDialog.Accepted:
+            return
+        self.save_prefs(self.inflight_profile_changes)
+        if not mode == "new":
+            self.refresh()
+
+    def edit_preferences(self):
+        prefs_window = PreferencesWindow(self)
+        ret = prefs_window.exec()
+        if ret != QDialog.Accepted:
+            return
+        self.save_prefs(self.inflight_preference_changes)
+        self.refresh()
+
+    def show_about(self):
+        about_window = AboutWindow(app.applicationVersion())
+        about_window.exec()
+
+    def show_help(self):
+        mbox = QMessageBox()
+        mbox.setIcon(QMessageBox.Information)
+        mbox.setText("Not yet implemented.")
+        mbox.setInformativeText("See Github for usage instructions.")
+        mbox.setStandardButtons(QMessageBox.Ok)
+        mbox.setDefaultButton(QMessageBox.Ok)
+        mbox.exec()
+
+    ## utilities that can be called by any other method in this class
+
+    # make sure enabled actions make sense for what the user can actually do
+    def refresh_actions(self):
+        plan_active_actions = (
+            self.action_new_file,
+            self.action_open_file,
+            self.action_save_file,
+            self.action_plan_settings
+        )
+        file_open_actions = (
+            self.action_refresh,
+            self.action_export
+        )
+        for action in plan_active_actions:
+            action.setEnabled(not self.plan is None)
+        for action in file_open_actions:
+            action.setEnabled(self.file_open)
+
+    def check_file_modified(self):
         if self.file_modified:
             mbox = QMessageBox()
             mbox.setIcon(QMessageBox.Warning)
@@ -64,125 +196,30 @@ class MainWindow(QMainWindow):
                 self.save_file()
             return resp
 
-    # reimplementation from QMainWindow to handle window close
-    def closeEvent(self, event):
-        if self.checkFileModified() == QMessageBox.Cancel:
-            event.ignore()
-            return
-        event.accept()
-
-    def open_file_dialog(self):
-        path = QFileDialog.getOpenFileName(self, "Open File", filter="CSV Files (*.csv)")
-        if self.checkFileModified() == QMessageBox.Cancel:
-            return
-        if path[0] != "":
-            self.settings.path = path[0]
-            self.open_file()
-
-    def new_file(self):
-        path = QFileDialog.getSaveFileName(self, "New File", filter="CSV Files (*.csv)")
-        if path[0] != "":
-            with open(path[0], "w", newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                # header
-                writer.writerow(["Date", f"Mass ({self.settings.units})"])
-                today = datetime.now()
-                writer.writerow([today.strftime("%Y/%m/%d"), ""])
-            self.settings.path = path[0]
-            self.open_file()
-
-    # if convert_units is set to "kg" or "lbs", the existing file data
-    # will be converted to that unit (from the other one)
-    def save_file(self, convert_units=False):
-        with open(self.settings.path, "w", newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            # header
-            weight_header = self.wt.weight_colname
-            if convert_units == "kg":
-                weight_header = "Mass (kg)"
-            elif convert_units == "lbs":
-                weight_header = "Mass (lbs)"
-            writer.writerow(["Date", self.wt.weight_colname])
-            for line in self.wt.csvdata:
-                weight = line[2]
-                if convert_units == "kg":
-                    weight *= 0.45359237
-                elif convert_units == "lbs":
-                    weight /= 0.45359237
-                writer.writerow([line[1], weight])
-        self.file_modified = False
-        self.action_save.setEnabled(False)
-        self.update_window_title()
-
-    def save_graph(self):
-        if not self.canvas:
-            return
-        path = QFileDialog.getSaveFileName(self, "Save File", filter="PNG Files (*.png)")
-        if path[0] != "":
-            pix = QPixmap(self.canvas.size())
-            self.canvas.render(pix)
-            pix.save(path[0], "PNG")
-
-    def save_prefs(self):
+    def save_prefs(self, prefs_list):
         # special handling if the user changed the default units
-        for setting in self.changed_settings:
-            if setting == "units":
-                self.units_changed = True
+        for setting in prefs_list:
             # we have a bunch of functions to run that apply the updates
-            self.changed_settings[setting]()
-        self.changed_settings = {}
+            prefs_list[setting]()
+            # if the units changed as the result of the previous step,
+            # we resave the user's data file to use the preferred units
+            if setting == "units" and self.plan.units != self.wt.units:
+                self.save_file(True)
+                self.open_data_file()
+        prefs_list = {}
 
-    def show_prefs(self):
-        pref_window = PrefWindow(self)
-        ret = pref_window.exec()
-        if ret != QDialog.Accepted:
-            return
-        self.save_prefs()
-
-        # offer to convert units if the user changed them
-        if self.units_changed and self.settings.units != self.wt.units:
-            self.units_changed = False
-            mbox = QMessageBox()
-            mbox.setIcon(QMessageBox.Question)
-            mbox.setText("You changed the default units for new files.\n" +
-                         "Your current file appears to be using the old units.\n" +
-                         "Would you like to convert this file to the new units?")
-            mbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            mbox.setDefaultButton(QMessageBox.No)
-            resp = mbox.exec()
-            if resp == QMessageBox.Yes:
-                self.save_file(self.settings.units)
-                self.open_file()
-        else:
-            self.refresh()
-
-    def refresh(self):
-        self.wt.add_dates()
-        self.update_plot()
-
-    def set_label_units(self):
-        if self.wt.units == "kg":
-            self.target_rate_label.setText("Loss Target (kg / 30 days)")
-            self.wlrate_spin_box.setMaximum(6.5)
-            # handle case where value is too high after switch
-            if self.settings.wlrate > 6.5:
-                self.wlrate_spin_box.setValue(2)
-        elif self.wt.units == "lbs":
-            self.target_rate_label.setText("Loss Target (lbs / 30 days)")
-            self.wlrate_spin_box.setMaximum(15)
-
-    def open_file(self):
+    def open_data_file(self):
         try:
-            with open(self.settings.path, newline='') as csvfile:
+            with open(self.plan.path, newline='') as csvfile:
                 reader = csv.reader(csvfile)
                 self.wt = WeightTable(parent=self.tableView, csvf=reader)
-        except Exception as e:
+        except Exception as e: # FIXME: use finally here instead?
             # file not found / corrupt / etc
             mbox = QMessageBox()
             mbox.setIcon(QMessageBox.Warning)
             # not "Pythonic", but saves redundant code
             if type(e) == FileNotFoundError:
-                mbox.setText(f"{self.settings.path} could not be opened.")
+                mbox.setText(f"{self.plan.path} could not be opened.")
             else:
                 print(e)
                 mbox.setText("File could not be opened.")
@@ -194,57 +231,61 @@ class MainWindow(QMainWindow):
         self.update_window_title()
 
         self.update_table()
-        self.set_label_units()
         self.refresh()
+        self.refresh_actions()
 
         self.wt.dataChanged.connect(self.table_changed)
+
+    # FIXME: error handling like open_data_file
+    def open_plan_file(self, path):
+        self.plan = Profile(path)
+        self.refresh_actions()
+        self.prefs.prev_plan = path
+        if self.prefs.open_prev and self.plan.path != "":
+            self.open_data_file()
 
     def table_changed(self):
         if self.table_is_loaded:
             self.file_modified = True
-            self.action_save.setEnabled(True)
+            self.action_save_file.setEnabled(True)
             self.update_window_title()
             self.refresh()
 
     def update_window_title(self):
         title = "Weight Manager"
         if self.file_open:
-            fn = self.settings.path.split("/")[-1]
+            fn = self.plan.path.split("/")[-1]
             if self.file_modified:
                 fn += "*"
             title = fn + " - " + title
         self.setWindowTitle(title)
 
-    def changed_wlrate(self, new_rate):
-        self.settings.wlrate = new_rate
-        self.update_plot()
-
     def update_plot(self):
         if self.canvas:
             self.centralwidget.layout().removeWidget(self.canvas)
-        weightloss = WeightLoss(self.wt, self.settings)
+        weightloss = WeightTracker(self.wt, self.plan)
         self.canvas = plot(weightloss)
         self.centralwidget.layout().addWidget(self.canvas)
         self.centralwidget.layout().setStretch(0, 1)
         self.centralwidget.layout().setStretch(1, 4)
 
-    def set_doc_widget_visibility(self, vis):
-        self.tableView.setVisible(vis)
-        self.line.setVisible(vis)
-        self.target_rate_label.setVisible(vis)
-        self.wlrate_spin_box.setVisible(vis)
-        self.action_refresh.setEnabled(vis)
-        self.action_save_graph.setEnabled(vis)
-
     def update_table(self):
         self.table_is_loaded = False
         self.tableView.setModel(self.wt)
         self.table_is_loaded = True
-        self.set_doc_widget_visibility(True)
+        self.tableView.setVisible(True)
+
+    # reimplementation from QMainWindow to handle window close
+    def closeEvent(self, event=None):
+        if self.check_file_modified() == QMessageBox.Cancel:
+            event.ignore()
+            return
+        event.accept()
 
 app = QApplication(sys.argv)
 app.setOrganizationName("Adam Fontenot")
 app.setOrganizationDomain("adam.sh")
 app.setApplicationName("Weight Manager")
+app.setApplicationVersion("0.1")
 w = MainWindow()
 app.exec_()

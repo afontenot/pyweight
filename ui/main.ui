@@ -20,163 +20,159 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QLabel" name="target_rate_label">
-        <property name="text">
-         <string>Loss Target (lbs / 30 days)</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="wlrate_spin_box">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>15.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>10.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTableView" name="tableView">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-          <horstretch>4</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOn</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="sizeAdjustPolicy">
-         <enum>QAbstractScrollArea::AdjustToContents</enum>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
-        </property>
-        <property name="alternatingRowColors">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QTableView" name="tableView">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <horstretch>4</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>931</width>
+     <height>32</height>
+    </rect>
    </property>
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <property name="movable">
-    <bool>false</bool>
-   </property>
-   <property name="floatable">
-    <bool>false</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="action_new"/>
-   <addaction name="action_open"/>
-   <addaction name="action_save"/>
-   <addaction name="separator"/>
-   <addaction name="action_refresh"/>
-   <addaction name="action_save_graph"/>
-   <addaction name="action_preferences"/>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="action_new_file"/>
+    <addaction name="action_open_file"/>
+    <addaction name="action_save_file"/>
+    <addaction name="separator"/>
+    <addaction name="action_new_plan"/>
+    <addaction name="action_open_plan"/>
+    <addaction name="separator"/>
+    <addaction name="action_quit"/>
+   </widget>
+   <widget class="QMenu" name="menuData">
+    <property name="title">
+     <string>Data</string>
+    </property>
+    <addaction name="action_refresh"/>
+    <addaction name="action_export"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="action_plan_settings"/>
+    <addaction name="action_pyweight_settings"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="action_about"/>
+    <addaction name="action_user_guide"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuData"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <action name="action_new">
-   <property name="icon">
-    <iconset theme="document-new">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
+  <action name="action_about">
    <property name="text">
-    <string>New</string>
+    <string>About PyWeight</string>
+   </property>
+  </action>
+  <action name="action_new_file">
+   <property name="text">
+    <string>New File</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="action_open">
-   <property name="icon">
-    <iconset theme="document-open">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
+  <action name="action_open_file">
    <property name="text">
-    <string>Open</string>
+    <string>Open File</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="action_save">
-   <property name="icon">
-    <iconset theme="document-save">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
+  <action name="action_save_file">
    <property name="text">
-    <string>Save</string>
+    <string>Save File</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
   </action>
+  <action name="action_new_plan">
+   <property name="text">
+    <string>New Plan</string>
+   </property>
+  </action>
+  <action name="action_open_plan">
+   <property name="text">
+    <string>Open Plan</string>
+   </property>
+  </action>
+  <action name="action_quit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
   <action name="action_refresh">
-   <property name="icon">
-    <iconset theme="view-refresh">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
-    <string>Refresh</string>
+    <string>Refresh Plot</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
-  <action name="action_save_graph">
-   <property name="icon">
-    <iconset theme="document-print">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
+  <action name="action_export">
    <property name="text">
-    <string>Save Graph</string>
+    <string>Export Plot</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
-  <action name="action_preferences">
-   <property name="icon">
-    <iconset theme="configure">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
+  <action name="action_plan_settings">
    <property name="text">
-    <string>Preferences</string>
+    <string>Plan Settings</string>
+   </property>
+  </action>
+  <action name="action_pyweight_settings">
+   <property name="text">
+    <string>PyWeight Settings</string>
+   </property>
+  </action>
+  <action name="action_user_guide">
+   <property name="text">
+    <string>User Guide</string>
    </property>
   </action>
  </widget>

@@ -24,19 +24,19 @@ def delta_lean(delta_bw, fat_i):
 def initial_body_fat_est(weight, age, height, gender_prop):
     bmi = weight / height ** 2
     bf_perc_female = (
-        -34.299 + 
-        +0.503 * age +
-        +3.353 * bmi +
-        -0.031 * bmi**2 +
-        -0.020 * bmi * age +
+        -34.299
+        +0.503 * age
+        +3.353 * bmi
+        -0.031 * bmi**2
+        -0.020 * bmi * age
         +0.00021 * bmi**2 * age
     )
     bf_perc_male = (
-        -44.988 + 
-        +0.503 * age +
-        +3.172 * bmi +
-        -0.026 * bmi**2 +
-        -0.020 * bmi * age +
+        -44.988
+        +0.503 * age
+        +3.172 * bmi
+        -0.026 * bmi**2
+        -0.020 * bmi * age
         +0.00021 * bmi**2 * age
     )
     return weight * (bf_perc_male * gender_prop + bf_perc_female * (1 - gender_prop)) / 100
@@ -58,17 +58,34 @@ def delta_e_auto(initial_w, previous_w, current_w, age, height, gender_prop):
     fat_i = initial_body_fat_est(initial_w, age, height, gender_prop)
     return delta_e(initial_w, previous_w, current_w, fat_i)
 
+# works out the correct gender proportion based on whether the user chose an
+# explicit gender or not; if not, use the gender_prop value
+def gender_proportion(gender_selection, gender_prop):
+    gender_proportion = 0.5
+    if gender_selection == "female":
+        gender_proportion = 0
+    elif gender_selection == "male":
+        gender_proportion = 1
+    elif gender_selection == "other":
+        gender_proportion = gender_prop
+    return gender_proportion
 
+def height_in_meters(height, unit):
+    if unit == "in":
+        height *= 0.0254
+    elif unit == "cm":
+        height *= 0.01
+    return height
 
 # represents a set of weight change data and associated variables
-class WeightLoss():
+class WeightTracker():
     def __init__(self, data, settings):
         self.data = data # data from a WeightTable
         self.settings = settings # a WlSettings
         self._interpolation = None
         self._adjustment = None
         self._knots = None
-        
+
     # discontinuity every `cycle` days in the range
     @property
     def knots(self):
@@ -76,7 +93,7 @@ class WeightLoss():
             number_of_cycles = 1 + (self.data.end_date - self.data.start_date).days // self.settings.cycle
             self._knots = [i * self.settings.cycle for i in range(1, number_of_cycles)]
         return self._knots
-    
+
     @property
     def interpolation(self):
         # if there's only one data point, nothing to interpolate
@@ -89,7 +106,7 @@ class WeightLoss():
             # record (not number of entries), so linear interpolation remains valid
             self._interpolation = LSpline(self.data.daynumbers, self.data.weights, self.knots, k=1)
         return self._interpolation
-    
+
     ## calculate daily difference, in calories, between chosen rate and calculated rate
     @property
     def adjustment(self):
@@ -102,32 +119,24 @@ class WeightLoss():
             last_cycle = self.knots[-1]
         else:
             last_cycle = first_day
-        weight_mult = ((self.data.units != "kg") and 0.45359237) or 1
+        weight_mult = 1 if self.data.units == "kg" else 0.45359237
         today_weight = self.interpolation(today) * weight_mult
         first_day_weight = self.interpolation(first_day) * weight_mult
         last_cycle_weight = self.interpolation(last_cycle) * weight_mult
-        rate_kg = self.settings.rate * weight_mult
-        
+        rate_kg = self.settings.wlrate * weight_mult
+
         # get caloric deficit associated with the current cycle *and*
         # caloric deficit associated with desired weight loss this cycle
-        
+
         # use number of days into present cycle to calculate expected wl
         days_in_current_cycle = today - last_cycle
-        
+
         # convert to meters
-        height_meters = self.settings.height
-        if self.settings.height_unit == "in":
-            height_meters *= 0.0254
-        elif self.settings.height_unit == "cm":
-            height_meters *= 0.01        
-        
-        gender_proportion = 0.5
-        if self.settings.gender_selection == "female":
-            gender_proportion = 0
-        elif self.settings.gender_selection == "male":
-            gender_proportion = 1
-        elif self.settings.gender_selection == "other":
-            gender_proportion = self.settings.gender_prop
+        height_meters = height_in_meters(self.settings.height,
+                                         self.settings.height_unit)
+
+        gender_prop = gender_proportion(self.settings.gender_selection,
+                                        self.settings.gender_prop)
 
         if self.settings.body_fat_method == "automatic":
             cycle_delta_e = delta_e_auto(
@@ -136,7 +145,7 @@ class WeightLoss():
                 today_weight,
                 self.settings.age,
                 height_meters,
-                gender_proportion
+                gender_prop
             )
             cycle_desired_delta_e = delta_e_auto(
                 first_day_weight,
@@ -144,7 +153,7 @@ class WeightLoss():
                 last_cycle_weight + (rate_kg * days_in_current_cycle),
                 self.settings.age,
                 height_meters,
-                gender_proportion
+                gender_prop
             )
         else:
             cycle_delta_e = delta_e(

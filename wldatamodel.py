@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 #
 # Any method that reimplements a QT method *must* access the internal
 # data in reversed order, because this data is presented to the user
-# reverse chronologically (but internally, we usually need it in 
+# reverse chronologically (but internally, we usually need it in
 # increasing order).
 #
 # This class provides several convenience properties and methods:
@@ -54,7 +54,11 @@ class WeightTable(QAbstractListModel):
     def data(self, index, role):
         if role in (Qt.DisplayRole, Qt.EditRole):
             # get list in reverse order, third column
-            return str(self._data[len(self._data) - 1 - index.row()][2])
+            val = self._data[len(self._data) - 1 - index.row()][2]
+            # we can store high precision internally, but for display round the values
+            if val != "":
+                val = round(val, 3)
+            return str(val)
         return None
 
     # reimplements QAbstractListModel
@@ -86,7 +90,7 @@ class WeightTable(QAbstractListModel):
         return super().flags(index)
 
     # reimplements QAbstractListModel
-    # QT uses "orientations" to indicate whether we are getting row or column 
+    # QT uses "orientations" to indicate whether we are getting row or column
     # headers. If we have horizontal orientation, we automatically know that
     # we have the (single) column header
     def headerData(self, section, orientation, role):
@@ -114,7 +118,8 @@ class WeightTable(QAbstractListModel):
                 self._data.append([new_date, new_date.strftime("%Y/%m/%d"), ""])
             self.endInsertRows()
 
-    @property 
+    # this is hacky for sure, but we have to trust that the data CSV is sane
+    @property
     def units(self):
         if "kg" in self.weight_colname:
             return "kg"
@@ -143,6 +148,6 @@ class WeightTable(QAbstractListModel):
 
     @property
     def daynumbers(self):
-        # we offset the day count by 1 because otherwise it would take 
+        # we offset the day count by 1 because otherwise it would take
         # (cycle + 1) days to reach the first knot
         return [1 + (row[0]-self.start_date).days for row in self._data if row[2] != ""]
