@@ -154,7 +154,7 @@ class ProfileWindow(QDialog):
         elif unit == "in":
             self.height_spinbox.setValue(self.height_spinbox.value() / 2.54)
         else:
-            raise ValueError("Invalid unit: " + str(unit))
+            raise ValueError(f"Invalid unit: {unit}")
         self.height_spinbox.setSuffix(f" {unit}")
         self.current_height_unit = unit
 
@@ -171,7 +171,7 @@ class ProfileWindow(QDialog):
             self.wcrate_spin_box.setMinimum(-3)
             self.wcrate_spin_box.setMaximum(3)
         else:
-            raise ValueError("Invalid unit: " + str(unit))
+            raise ValueError(f"Invalid unit: {unit}")
         self.wcrate_spin_box.setSuffix(f" {unit}/wk")
         self.current_weight_unit = unit
 

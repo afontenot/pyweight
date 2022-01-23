@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
             fn = self.plan.path.split("/")[-1]
             if self.file_modified:
                 fn += "*"
-            title = fn + " - " + title
+            title = f"{fn} - {title}"
         self.setWindowTitle(title)
 
     def update_plot(self):
