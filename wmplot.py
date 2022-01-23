@@ -34,7 +34,9 @@ class Canvas(FigureCanvasQTAgg):
 
             # Every `cycle` days, print out instructions
             if wtracker.data.daynumbers[-1] % wtracker.settings.cycle == 0:
-                info = f"Consider adjusting intake by {wtracker.adjustment:+} calories per day."
+                if wtracker.adjustment != 0:
+                    adjword = "increasing" if wtracker.adjustment > 0 else "decreasing"
+                    info = f"Consider {adjword} intake by {abs(wtracker.adjustment)} calories per day."
             else:
                 days_to_go = wtracker.settings.cycle - (wtracker.data.daynumbers[-1] % wtracker.settings.cycle)
                 plural = "s" if days_to_go > 1 else ""
