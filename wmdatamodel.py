@@ -105,10 +105,10 @@ class WeightTable(QAbstractListModel):
     # and also always contains at least one empty cell at the end
     def add_dates(self):
         today = datetime.now().date()
-        daysPassed = (today - self._data[-1][0]).days
+        days_passed = (today - self._data[-1][0]).days
         # last line is blank: add 0, last line is not blank: add 1
         days_to_add = int((self._data[-1][2]) != "")
-        days_to_add = max(days_to_add, daysPassed)
+        days_to_add = max(days_to_add, days_passed)
         if days_to_add > 0:
             row_count = len(self._data)
             # we have to warn QT which rows are about to be edited

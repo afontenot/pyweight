@@ -2,6 +2,7 @@
 import csv
 import sys
 from datetime import datetime
+from os.path import exists
 
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap, QKeySequence
@@ -42,7 +43,13 @@ class MainWindow(QMainWindow):
         # initialize preferences
         self.prefs = Preferences()
         if self.prefs.open_prev and self.prefs.prev_plan != "":
-            self.open_plan_file(self.prefs.prev_plan)
+            if exists(self.prefs.prev_plan):
+                self.open_plan_file(self.prefs.prev_plan)
+            else:
+                mbox = QMessageBox()
+                mbox.setIcon(QMessageBox.Warning)
+                mbox.setText("Previous plan file could not be opened.")
+                mbox.exec()
 
         # connect signals
         self.action_new_file.triggered.connect(self.new_file)
@@ -74,7 +81,7 @@ class MainWindow(QMainWindow):
         if path[0] != "":
             if self.check_file_modified() == QMessageBox.Cancel:
                 return
-            with open(path[0], "w", newline='') as csvfile:
+            with open(path[0], "w", encoding="utf-8", newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 # header
                 writer.writerow(["Date", f"Mass ({self.plan.weight_unit})"])
@@ -94,7 +101,7 @@ class MainWindow(QMainWindow):
     # if convert_units is set, the existing file data
     # will be converted to those units (from the other one)
     def save_file(self, convert_units=False):
-        with open(self.plan.path, "w", newline='') as csvfile:
+        with open(self.plan.path, "w", encoding="utf-8", newline='') as csvfile:
             writer = csv.writer(csvfile)
             # header
             weight_header = self.wt.weight_colname
@@ -118,7 +125,6 @@ class MainWindow(QMainWindow):
         if path[0] != "":
             self.open_plan_file(path[0])
             self.edit_plan(mode="new")
-        return
 
     def open_plan(self):
         path = QFileDialog.getOpenFileName(self, "Open File", filter="Plan Files (*.wmplan)")
@@ -202,6 +208,7 @@ class MainWindow(QMainWindow):
             if resp == QMessageBox.Save:
                 self.save_file()
             return resp
+        return None
 
     def save_prefs(self, prefs_list, mode=None):
         # we have a bunch of functions to run that apply the updates
@@ -216,15 +223,14 @@ class MainWindow(QMainWindow):
 
     def open_data_file(self):
         try:
-            with open(self.plan.path, newline='') as csvfile:
+            with open(self.plan.path, encoding="utf-8", newline='') as csvfile:
                 reader = csv.reader(csvfile)
                 self.wt = WeightTable(parent=self.tableView, csvf=reader)
-        except Exception as e: # FIXME: use finally here instead?
+        except Exception as e:
             # file not found / corrupt / etc
             mbox = QMessageBox()
             mbox.setIcon(QMessageBox.Warning)
-            # not "Pythonic", but saves redundant code
-            if type(e) == FileNotFoundError:
+            if isinstance(e, FileNotFoundError):
                 mbox.setText(f"{self.plan.path} could not be opened.")
             else:
                 print(e)
@@ -243,7 +249,6 @@ class MainWindow(QMainWindow):
 
         self.wt.dataChanged.connect(self.table_changed)
 
-    # FIXME: error handling like open_data_file
     def open_plan_file(self, path):
         self.plan = Profile(path)
         self.refresh_actions()

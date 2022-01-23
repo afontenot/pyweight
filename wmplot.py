@@ -6,6 +6,16 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 class Canvas(FigureCanvasQTAgg):
+    locator = dates.AutoDateLocator(interval_multiples=False)
+    locator.intervald[rrule.HOURLY] = [24]
+    locator.intervald[rrule.MINUTELY] = [24 * 60]
+    locator.intervald[rrule.SECONDLY] = [24 * 60 * 60]
+    date_fmts = ['%b %Y', '%b %-d', '%b %-d', '%b %-d', '%b %-d', '%b %-d']
+    if sys.platform == "win32":
+        date_fmts = [x.replace('-', '#') for x in date_fmts]
+    offset_fmts = ['', '%Y', '%Y', '%Y', '%Y', '%Y']
+    formatter = dates.ConciseDateFormatter(locator, formats=date_fmts, offset_formats=offset_fmts)
+
     def __init__(self, dpi=96):
         self.fig = Figure(dpi=dpi)
         super().__init__(self.fig)
@@ -21,15 +31,15 @@ class Canvas(FigureCanvasQTAgg):
         # plot using the original independent variable, the date, to get nicer output
         self.axes.plot(wtracker.data.dates,
                         wtracker.data.weights,
-                        'o', 
-                        c="xkcd:burgundy", 
+                        'o',
+                        c="xkcd:burgundy",
                         ms=4)
 
         # if interpolation is available, plot it and provide advice
         info = ""
         if wtracker.interpolation:
-            self.axes.plot(wtracker.data.dates, 
-                            wtracker.interpolation(wtracker.data.daynumbers), 
+            self.axes.plot(wtracker.data.dates,
+                            wtracker.interpolation(wtracker.data.daynumbers),
                             c="xkcd:dark navy blue")
 
             # Every `cycle` days, print out instructions
@@ -60,15 +70,7 @@ class Canvas(FigureCanvasQTAgg):
 
         self.fig.suptitle("Weight Tracking")
         self.axes.set_title(info, fontsize=10, pad=20)
-        locator = dates.AutoDateLocator(interval_multiples=False)
-        locator.intervald[rrule.HOURLY] = [24]
-        locator.intervald[rrule.MINUTELY] = [24 * 60]
-        locator.intervald[rrule.SECONDLY] = [24 * 60 * 60]
-        date_fmts = ['%b %Y', '%b %-d', '%b %-d', '%b %-d', '%b %-d', '%b %-d']
-        if sys.platform == "win32":
-            date_fmts = [x.replace('-', '#') for x in date_fmts]
-        offset_fmts = ['', '%Y', '%Y', '%Y', '%Y', '%Y']
-        formatter = dates.ConciseDateFormatter(locator, formats=date_fmts, offset_formats=offset_fmts)
-        self.axes.xaxis.set_major_locator(locator)
-        self.axes.xaxis.set_major_formatter(formatter)
+
+        self.axes.xaxis.set_major_locator(self.locator)
+        self.axes.xaxis.set_major_formatter(self.formatter)
         self.axes.grid(True)

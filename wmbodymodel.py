@@ -94,6 +94,7 @@ class WeightTracker():
             self._knots = [i * self.settings.cycle for i in range(1, number_of_cycles)]
         return self._knots
 
+    # caches (and returns) a spline fit
     @property
     def interpolation(self):
         # if there's only one data point, nothing to interpolate
@@ -107,7 +108,10 @@ class WeightTracker():
             self._interpolation = LSpline(self.data.daynumbers, self.data.weights, self.knots, k=1)
         return self._interpolation
 
-    ## calculate daily difference, in calories, between chosen rate and calculated rate
+    # calculate daily difference, in calories, between chosen rate and calculated rate
+    # note: you may only call adjustment if there are at least two data points,
+    # because it depends on an spline fit across the data; otherwise self.interpolation()
+    # won't return a callable.
     @property
     def adjustment(self):
         if self._adjustment:

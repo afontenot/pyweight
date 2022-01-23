@@ -175,17 +175,6 @@ class ProfileWindow(QDialog):
         self.wcrate_spin_box.setSuffix(f" {unit}/wk")
         self.current_weight_unit = unit
 
-    def import_profile(self):
-        path = QFileDialog.getOpenFileName(self, "Import Profile", filter="Profile Files (*.wmprofile)")
-        if path[0] != "":
-            self.parent.plan.importprofile(path)
-            self._init_gui()
-
-    def export_profile(self):
-        path = QFileDialog.getSaveFileName(self, "Export Profile", filter="Profile Files (*.wmprofile)")
-        if path[0] != "":
-            self.parent.plan.exportprofile(path)
-
     # all these functions create and store functions that modify the setting
     # they don't actually execute until the user accepts the dialog
     def kg_radio_toggled(self):

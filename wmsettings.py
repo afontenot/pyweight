@@ -1,4 +1,3 @@
-from os.path import abspath
 from PyQt5.QtCore import QSettings
 
 # A simple subclass of QSettings to provide slighter better behavior
