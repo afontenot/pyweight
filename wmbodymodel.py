@@ -20,7 +20,29 @@ def delta_lean(delta_bw, fat_i):
 
 # Estimate from CUN-BAE equation. Far from perfect, better than nothing.
 # https://pubmed.ncbi.nlm.nih.gov/22179957/
-# weight in kg, age in years, height in meters
+#
+# A few notes:
+# 1. Flawed in that the study population was exclusively white.
+# 2. Cui et al. (2014) found this method to be among the best performing
+#    among tested methods. Not without bias, but surprisingly strong
+#    correlations even for non-white Americans.
+#    https://pubmed.ncbi.nlm.nih.gov/24576861/
+# 3. The most promising alternative I could find was Lee et al. (2017)
+#    https://pubmed.ncbi.nlm.nih.gov/29110742/
+#    There were several issues that I could see with using this model.
+#    One is that it's an entirely linear model. From other studies, I'm
+#    skeptical that e.g. height has a linear relationship with body fat
+#    percentage. Also, it uses race as an explicit variable. That might
+#    lead to more slightly more accurate results, but it would mean we
+#    have to ask the user for that information - meaning we have to be
+#    exclusionary, since not every race (or race-combination) is part of
+#    the model. I noticed that in some cases, increased weight had a
+#    *negative* correlation with weight in the model, which seems deeply
+#    counter-intuitive. Last, the model hasn't yet been validated by an
+#    external paper. I'm open to other alternatives, file a Github issue
+#    if you have one.
+
+# weight in kg, age in years, height in meters; returns kg body fat
 def initial_body_fat_est(weight, age, height, gender_prop):
     bmi = weight / height ** 2
     bf_perc_female = (
