@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
             return
         self.save_prefs(self.inflight_profile_changes, mode)
         if not mode == "new":
-            self.refresh()
+            self.update_plot()
 
     def edit_preferences(self):
         prefs_window = PreferencesWindow(self)
@@ -162,7 +162,7 @@ class MainWindow(QMainWindow):
         if ret != QDialog.Accepted:
             return
         self.save_prefs(self.inflight_preference_changes)
-        self.refresh()
+        self.update_plot()
 
     def show_about(self):
         about_window = AboutWindow(app.applicationVersion())
@@ -257,17 +257,22 @@ class MainWindow(QMainWindow):
             self.open_data_file()
 
     def table_changed(self):
-        if self.table_is_loaded:
-            if self.table_needs_focusmove:
-                self.tableView.focusNextChild()
-                self.table_needs_focusmove = False
+        self.move_cursor_down()
+        if self.table_is_loaded and self.wt.has_new_plottable_data:
             self.file_modified = True
             self.action_save_file.setEnabled(True)
             self.update_window_title()
             self.refresh()
 
+    def move_cursor_down(self):
+        if self.table_needs_focusmove:
+            index = self.tableView.currentIndex()
+            sibling = self.wt.index(index.row()+1)
+            if sibling.isValid():
+                self.tableView.setCurrentIndex(sibling)
+                self.table_needs_focusmove = False
+
     def update_table(self):
-        self.table_is_loaded = False
         self.tableView.setModel(self.wt)
         self.table_is_loaded = True
         self.tableView.setVisible(True)
@@ -277,11 +282,11 @@ class MainWindow(QMainWindow):
     def return_key_activated(self):
         index = self.tableView.currentIndex()
         if self.tableView.isPersistentEditorOpen(index):
+            # flag will result in next item being focused when table_changed fires
+            self.table_needs_focusmove = True
             editor = self.tableView.indexWidget(index)
             self.tableView.commitData(editor)
             self.tableView.closeEditor(editor, QAbstractItemDelegate.NoHint)
-            # flag will result in next item being focused when table_changed fires
-            self.table_needs_focusmove = True
         else:
             self.tableView.edit(index)
 
@@ -303,6 +308,7 @@ class MainWindow(QMainWindow):
         # It seems expensive to recreate this class and do a complete redraw
         # every time, but WT is extremely dependent on specific details. For
         # example, even one new data point will change the spline fit.
+        self.wt.has_new_plottable_data = False
         weightloss = WeightTracker(self.wt, self.plan)
         self.canvas.plot(weightloss)
         self.canvas.draw()

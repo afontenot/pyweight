@@ -28,6 +28,11 @@ class WeightTable(QAbstractListModel):
         #   the date is useful internally
         self._data = []
 
+        # We use this to determine when we need to replot. Adding new (blank)
+        # dates also triggers the dataChanged() slot, but we don't want to
+        # replot when that happens.
+        self.has_new_plottable_data = False
+
         # initialize the table from a CSV
         # currently we depend on a very specific format, which should
         # be created for the user as needed with a new file
@@ -79,6 +84,7 @@ class WeightTable(QAbstractListModel):
             oldvalue = self._data[index.row()][2]
             if oldvalue != value:
                 self._data[index.row()][2] = value
+                self.has_new_plottable_data = True
                 self.dataChanged.emit(index, index)
             return True
         return super().setData(index, value, role)
@@ -117,6 +123,9 @@ class WeightTable(QAbstractListModel):
                 new_date = self.end_date + timedelta(days=i+1)
                 self._data.append([new_date, new_date.strftime("%Y/%m/%d"), ""])
             self.endInsertRows()
+            begin_index = self.index(row_count)
+            end_index = self.index(row_count+days_to_add-1)
+            self.dataChanged.emit(begin_index, end_index)
 
     # this is hacky for sure, but we have to trust that the data CSV is sane
     @property
