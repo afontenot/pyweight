@@ -357,7 +357,7 @@ class MainWindow(QMainWindow):
 app = QApplication(sys.argv)
 app.setOrganizationName("Adam Fontenot")
 app.setOrganizationDomain("adam.sh")
-app.setApplicationName("Weight Manager")
+app.setApplicationName("pyweight")
 app.setApplicationVersion("0.1")
 w = MainWindow()
 app.exec_()
