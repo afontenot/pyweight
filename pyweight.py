@@ -40,17 +40,6 @@ class MainWindow(QMainWindow):
         self.inflight_preference_changes = {}
         self.wt = None
 
-        # initialize preferences
-        self.prefs = Preferences()
-        if self.prefs.open_prev and self.prefs.prev_plan != "":
-            if exists(self.prefs.prev_plan):
-                self.open_plan_file(self.prefs.prev_plan)
-            else:
-                mbox = QMessageBox()
-                mbox.setIcon(QMessageBox.Warning)
-                mbox.setText("Previous plan file could not be opened.")
-                mbox.exec()
-
         # connect signals
         self.action_new_file.triggered.connect(self.new_file)
         self.action_open_file.triggered.connect(self.open_file)
@@ -73,6 +62,20 @@ class MainWindow(QMainWindow):
         self._return_shortcut.activated.connect(self.return_key_activated)
 
         self.show()
+
+        # initialize preferences
+        self.prefs = Preferences()
+        if self.prefs.open_prev and self.prefs.prev_plan != "":
+            if exists(self.prefs.prev_plan):
+                self.open_plan_file(self.prefs.prev_plan)
+            else:
+                mbox = QMessageBox()
+                mbox.setIcon(QMessageBox.Warning)
+                mbox.setText("Previous plan file could not be opened.")
+                mbox.exec()
+        elif self.prefs.prev_plan == "":
+            # give the user some help if they've never used pyweight before
+            self.start_pyweight_guide()
 
     ## connected callbacks for main window actions
 
@@ -177,7 +180,35 @@ class MainWindow(QMainWindow):
         mbox.setDefaultButton(QMessageBox.Ok)
         mbox.exec()
 
+    ## end of callbacks
     ## utilities that can be called by any other method in this class
+
+    def start_pyweight_guide(self):
+        mbox = QMessageBox()
+        mbox.setWindowTitle("Guide - Weight Manager")
+        mbox.setText("Welcome to pyweight!")
+        mbox.setInformativeText(
+            "If you have not used this program before, this guide will help "
+            "you get started. If you already know how to use pyweight and "
+            "have a plan file ready to import, you can click 'No' now.\n\n"
+            "To begin tracking your weight with pyweight, you will first need "
+            "to create a plan file. This file stores all of your settings, "
+            "making it possible to create backups and share them between "
+            "multiple installations of pyweight.\n\n"
+            "You will also need to create a data file. This is a simple, "
+            "human-readable CSV file that contains your recorded weight for "
+            "each day you use the program.\n\n"
+            "In the future, you can create these files manually by using the "
+            "File menu.\n\n"
+            "Would you like to create these files now?"
+        )
+        mbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+        mbox.setDefaultButton(QMessageBox.Yes)
+        ret = mbox.exec()
+        if ret == QMessageBox.Yes:
+            self.new_plan()
+            if self.prefs.prev_plan != "":
+                self.new_file()
 
     # make sure enabled actions make sense for what the user can actually do
     def refresh_actions(self):
@@ -216,7 +247,7 @@ class MainWindow(QMainWindow):
             prefs_list[setting]()
         # if the units changed as the result of the previous step,
         # we resave the user's data file to use the preferred units
-        if self.plan.weight_unit != self.wt.units and mode != "new":
+        if mode != "new" and self.plan.weight_unit != self.wt.units:
             self.save_file(True)
             self.open_data_file()
         prefs_list = {}
@@ -277,19 +308,6 @@ class MainWindow(QMainWindow):
         self.table_is_loaded = True
         self.tableView.setVisible(True)
 
-    # fires when enter key is pressed on QTableView widget
-    # we catch this to move down the list in our model
-    def return_key_activated(self):
-        index = self.tableView.currentIndex()
-        if self.tableView.isPersistentEditorOpen(index):
-            # flag will result in next item being focused when table_changed fires
-            self.table_needs_focusmove = True
-            editor = self.tableView.indexWidget(index)
-            self.tableView.commitData(editor)
-            self.tableView.closeEditor(editor, QAbstractItemDelegate.NoHint)
-        else:
-            self.tableView.edit(index)
-
     def update_window_title(self):
         title = "Weight Manager"
         if self.file_open:
@@ -312,6 +330,22 @@ class MainWindow(QMainWindow):
         weightloss = WeightTracker(self.wt, self.plan)
         self.canvas.plot(weightloss)
         self.canvas.draw()
+
+    ## end utility methods
+    ## miscellaneous
+
+    # fires when enter key is pressed on QTableView widget
+    # we catch this to move down the list in our model
+    def return_key_activated(self):
+        index = self.tableView.currentIndex()
+        if self.tableView.isPersistentEditorOpen(index):
+            # flag will result in next item being focused when table_changed fires
+            self.table_needs_focusmove = True
+            editor = self.tableView.indexWidget(index)
+            self.tableView.commitData(editor)
+            self.tableView.closeEditor(editor, QAbstractItemDelegate.NoHint)
+        else:
+            self.tableView.edit(index)
 
     # reimplementation from QMainWindow to handle window close
     def closeEvent(self, event=None):
