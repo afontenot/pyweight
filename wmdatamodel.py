@@ -76,7 +76,7 @@ class WeightTable(QAbstractListModel):
                 try:
                     value = float(value)
                     # handle absurd values that might otherwise cause a crash
-                    if value > 2000:
+                    if value > 2000 or value <= 0:
                         return False
                 except ValueError:
                     return False
