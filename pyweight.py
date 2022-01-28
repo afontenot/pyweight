@@ -5,6 +5,7 @@ from datetime import datetime
 from os.path import exists
 
 from PyQt5 import uic
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap, QKeySequence
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMainWindow, QMessageBox, QShortcut, QAbstractItemDelegate
 
@@ -63,7 +64,11 @@ class MainWindow(QMainWindow):
 
         self.show()
 
-        # initialize preferences
+        # timer will fire immediately after app.exec()
+        QTimer.singleShot(0, self._init_preferences)
+
+    # initialize preferences - have to defer this after app.exec()
+    def _init_preferences(self):
         self.prefs = Preferences()
         if self.prefs.open_prev and self.prefs.prev_plan != "":
             if exists(self.prefs.prev_plan):
@@ -360,4 +365,4 @@ app.setOrganizationDomain("adam.sh")
 app.setApplicationName("pyweight")
 app.setApplicationVersion("0.1")
 w = MainWindow()
-app.exec_()
+app.exec()
