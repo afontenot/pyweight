@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 
+
 # A simple model for QT's MVC architecture
 # Can be initialized with a CSV.
 #

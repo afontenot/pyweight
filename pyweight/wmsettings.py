@@ -1,8 +1,8 @@
 from PyQt5.QtCore import QSettings
 
+
 # A simple subclass of QSettings to provide slighter better behavior
 # including proper handling of type conversions and defaults
-
 # Each property specified in the `defaults` dict can be accessed
 # directly as a property of a WmSettings instance.
 class WMSettings(QSettings):

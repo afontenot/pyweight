@@ -14,6 +14,7 @@ from scipy.special import lambertw
 # fat mass also provided by Hall.
 # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2376744/
 
+
 # This is a modification of the formula given in Hall (2008)
 def delta_lean(delta_bw, fat_i):
     return (

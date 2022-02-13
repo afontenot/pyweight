@@ -26,7 +26,8 @@ from pyweight.wmprofile import Profile, ProfileWindow
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
+        self.app = app
         super().__init__(*args, **kwargs)
         uic.loadUi("ui/main.ui", self)
 
@@ -89,7 +90,8 @@ class MainWindow(QMainWindow):
             # give the user some help if they've never used pyweight before
             self.start_pyweight_guide()
 
-    ## connected callbacks for main window actions
+    # Below here:
+    # Slots for main window actions
 
     def new_file(self):
         path = QFileDialog.getSaveFileName(self, "New File", filter="CSV Files (*.csv)")
@@ -188,7 +190,7 @@ class MainWindow(QMainWindow):
         self.update_plot()
 
     def show_about(self):
-        about_window = AboutWindow(app.applicationVersion())
+        about_window = AboutWindow(self.app.applicationVersion())
         about_window.exec()
 
     def show_help(self):
@@ -200,8 +202,28 @@ class MainWindow(QMainWindow):
         mbox.setDefaultButton(QMessageBox.Ok)
         mbox.exec()
 
-    ## end of callbacks
-    ## utilities that can be called by any other method in this class
+    # fires when enter key is pressed on QTableView widget
+    # we catch this to move down the list in our model
+    def return_key_activated(self):
+        index = self.tableView.currentIndex()
+        if self.tableView.isPersistentEditorOpen(index):
+            # flag will result in next item being focused when table_changed fires
+            self.table_needs_focusmove = True
+            editor = self.tableView.indexWidget(index)
+            self.tableView.commitData(editor)
+            self.tableView.closeEditor(editor, QAbstractItemDelegate.NoHint)
+        else:
+            self.tableView.edit(index)
+
+    # reimplementation from QMainWindow to handle window close
+    def closeEvent(self, event=None):
+        if self.check_file_modified() == QMessageBox.Cancel:
+            event.ignore()
+            return
+        event.accept()
+
+    # Above: Qt slots
+    # Below: utilities that can be called by any other method in this class
 
     def start_pyweight_guide(self):
         mbox = QMessageBox()
@@ -240,7 +262,7 @@ class MainWindow(QMainWindow):
         )
         file_open_actions = (self.action_refresh, self.action_export)
         for action in plan_active_actions:
-            action.setEnabled(not self.plan is None)
+            action.setEnabled(self.plan is not None)
         for action in file_open_actions:
             action.setEnabled(self.file_open)
 
@@ -350,25 +372,4 @@ class MainWindow(QMainWindow):
         self.canvas.plot(weightloss)
         self.canvas.draw()
 
-    ## end utility methods
-    ## miscellaneous
-
-    # fires when enter key is pressed on QTableView widget
-    # we catch this to move down the list in our model
-    def return_key_activated(self):
-        index = self.tableView.currentIndex()
-        if self.tableView.isPersistentEditorOpen(index):
-            # flag will result in next item being focused when table_changed fires
-            self.table_needs_focusmove = True
-            editor = self.tableView.indexWidget(index)
-            self.tableView.commitData(editor)
-            self.tableView.closeEditor(editor, QAbstractItemDelegate.NoHint)
-        else:
-            self.tableView.edit(index)
-
-    # reimplementation from QMainWindow to handle window close
-    def closeEvent(self, event=None):
-        if self.check_file_modified() == QMessageBox.Cancel:
-            event.ignore()
-            return
-        event.accept()
+    # Above: utility methods
