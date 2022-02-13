@@ -118,13 +118,13 @@ class WeightTable(QAbstractListModel):
         if days_to_add > 0:
             row_count = len(self._data)
             # we have to warn QT which rows are about to be edited
-            self.beginInsertRows(QModelIndex(), row_count, row_count+days_to_add-1)
+            self.beginInsertRows(QModelIndex(), row_count, row_count + days_to_add - 1)
             for i in range(days_to_add):
-                new_date = self.end_date + timedelta(days=i+1)
+                new_date = self.end_date + timedelta(days=i + 1)
                 self._data.append([new_date, new_date.strftime("%Y/%m/%d"), ""])
             self.endInsertRows()
             begin_index = self.index(row_count)
-            end_index = self.index(row_count+days_to_add-1)
+            end_index = self.index(row_count + days_to_add - 1)
             self.dataChanged.emit(begin_index, end_index)
 
     # this is hacky for sure, but we have to trust that the data CSV is sane
@@ -162,4 +162,6 @@ class WeightTable(QAbstractListModel):
     def daynumbers(self):
         # we offset the day count by 1 because otherwise it would take
         # (cycle + 1) days to reach the first knot
-        return [1 + (row[0]-self.start_date).days for row in self._data if row[2] != ""]
+        return [
+            1 + (row[0] - self.start_date).days for row in self._data if row[2] != ""
+        ]

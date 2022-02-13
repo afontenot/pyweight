@@ -7,7 +7,15 @@ from os.path import exists
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap, QKeySequence
-from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMainWindow, QMessageBox, QShortcut, QAbstractItemDelegate
+from PyQt5.QtWidgets import (
+    QApplication,
+    QDialog,
+    QFileDialog,
+    QMainWindow,
+    QMessageBox,
+    QShortcut,
+    QAbstractItemDelegate,
+)
 
 from wmabout import AboutWindow
 from wmbodymodel import WeightTracker
@@ -17,6 +25,7 @@ from wmprefs import Preferences, PreferencesWindow
 from wmprofile import Profile, ProfileWindow
 
 # This file contains the code for initialization and the main window class.
+
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -89,7 +98,7 @@ class MainWindow(QMainWindow):
         if path[0] != "":
             if self.check_file_modified() == QMessageBox.Cancel:
                 return
-            with open(path[0], "w", encoding="utf-8", newline='') as csvfile:
+            with open(path[0], "w", encoding="utf-8", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 # header
                 writer.writerow(["Date", f"Mass ({self.plan.weight_unit})"])
@@ -99,7 +108,9 @@ class MainWindow(QMainWindow):
             self.open_data_file()
 
     def open_file(self):
-        path = QFileDialog.getOpenFileName(self, "Open File", filter="CSV Files (*.csv)")
+        path = QFileDialog.getOpenFileName(
+            self, "Open File", filter="CSV Files (*.csv)"
+        )
         if path[0] != "":
             if self.check_file_modified() == QMessageBox.Cancel:
                 return
@@ -109,7 +120,7 @@ class MainWindow(QMainWindow):
     # if convert_units is set, the existing file data
     # will be converted to those units (from the other one)
     def save_file(self, convert_units=False):
-        with open(self.plan.path, "w", encoding="utf-8", newline='') as csvfile:
+        with open(self.plan.path, "w", encoding="utf-8", newline="") as csvfile:
             writer = csv.writer(csvfile)
             # header
             weight_header = self.wt.weight_colname
@@ -129,13 +140,17 @@ class MainWindow(QMainWindow):
         self.update_window_title()
 
     def new_plan(self):
-        path = QFileDialog.getSaveFileName(self, "New File", filter="Plan Files (*.wmplan)")
+        path = QFileDialog.getSaveFileName(
+            self, "New File", filter="Plan Files (*.wmplan)"
+        )
         if path[0] != "":
             self.open_plan_file(path[0])
             self.edit_plan(mode="new")
 
     def open_plan(self):
-        path = QFileDialog.getOpenFileName(self, "Open File", filter="Plan Files (*.wmplan)")
+        path = QFileDialog.getOpenFileName(
+            self, "Open File", filter="Plan Files (*.wmplan)"
+        )
         if path[0] != "":
             if self.check_file_modified() == QMessageBox.Cancel:
                 return
@@ -149,7 +164,9 @@ class MainWindow(QMainWindow):
     def save_graph(self):
         if not self.canvas:
             return
-        path = QFileDialog.getSaveFileName(self, "Save File", filter="PNG Files (*.png)")
+        path = QFileDialog.getSaveFileName(
+            self, "Save File", filter="PNG Files (*.png)"
+        )
         if path[0] != "":
             pix = QPixmap(self.canvas.size())
             self.canvas.render(pix)
@@ -207,7 +224,7 @@ class MainWindow(QMainWindow):
             "File menu.\n\n"
             "Would you like to create these files now?"
         )
-        mbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+        mbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         mbox.setDefaultButton(QMessageBox.Yes)
         ret = mbox.exec()
         if ret == QMessageBox.Yes:
@@ -221,12 +238,9 @@ class MainWindow(QMainWindow):
             self.action_new_file,
             self.action_open_file,
             self.action_save_file,
-            self.action_plan_settings
+            self.action_plan_settings,
         )
-        file_open_actions = (
-            self.action_refresh,
-            self.action_export
-        )
+        file_open_actions = (self.action_refresh, self.action_export)
         for action in plan_active_actions:
             action.setEnabled(not self.plan is None)
         for action in file_open_actions:
@@ -238,7 +252,9 @@ class MainWindow(QMainWindow):
             mbox.setIcon(QMessageBox.Warning)
             mbox.setText("Your log file has been modified.")
             mbox.setInformativeText("Do you want to save your changes or discard them?")
-            mbox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+            mbox.setStandardButtons(
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel
+            )
             mbox.setDefaultButton(QMessageBox.Save)
             resp = mbox.exec()
             if resp == QMessageBox.Save:
@@ -259,7 +275,7 @@ class MainWindow(QMainWindow):
 
     def open_data_file(self):
         try:
-            with open(self.plan.path, encoding="utf-8", newline='') as csvfile:
+            with open(self.plan.path, encoding="utf-8", newline="") as csvfile:
                 reader = csv.reader(csvfile)
                 self.wt = WeightTable(parent=self.tableView, csvf=reader)
         except Exception as e:
@@ -303,7 +319,7 @@ class MainWindow(QMainWindow):
     def move_cursor_down(self):
         if self.table_needs_focusmove:
             index = self.tableView.currentIndex()
-            sibling = self.wt.index(index.row()+1)
+            sibling = self.wt.index(index.row() + 1)
             if sibling.isValid():
                 self.tableView.setCurrentIndex(sibling)
                 self.table_needs_focusmove = False
@@ -358,6 +374,7 @@ class MainWindow(QMainWindow):
             event.ignore()
             return
         event.accept()
+
 
 app = QApplication(sys.argv)
 app.setOrganizationName("Adam Fontenot")

@@ -1,6 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox
 
+
 class AboutWindow(QDialog):
     def __init__(self, versioninfo, *args, **kwargs):
         super().__init__(*args, **kwargs)

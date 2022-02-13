@@ -3,19 +3,15 @@ from PyQt5.QtWidgets import QDialog, QDialogButtonBox
 
 from wmsettings import WMSettings
 
-class Preferences(WMSettings):
-    defaults = {
-        "open_prev": True,
-        "prev_plan": "",
-        "language": "English"
-    }
 
-    conversions = {
-        "open_prev": bool
-    }
+class Preferences(WMSettings):
+    defaults = {"open_prev": True, "prev_plan": "", "language": "English"}
+
+    conversions = {"open_prev": bool}
 
     def __init__(self):
         super().__init__(self.defaults, self.conversions)
+
 
 class PreferencesWindow(QDialog):
     def __init__(self, parent, *args, **kwargs):
@@ -36,6 +32,9 @@ class PreferencesWindow(QDialog):
 
     def reopen_toggled(self):
         reopen_enabled = bool(self.reopen_cbox.checkState())
-        def fn(): self.parent.prefs.open_prev = reopen_enabled
+
+        def fn():
+            self.parent.prefs.open_prev = reopen_enabled
+
         self.parent.inflight_preference_changes["open_prev"] = fn
         self._set_modified()

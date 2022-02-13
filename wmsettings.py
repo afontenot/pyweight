@@ -15,7 +15,7 @@ class WMSettings(QSettings):
         # for safety, prove that none of the chosen setting names
         # already exist as inherited attributes of QSettings
         for setting in defaults:
-            assert(not hasattr(super(), setting))
+            assert not hasattr(super(), setting)
 
         self.defaults = defaults
         self.conversions = conversions
