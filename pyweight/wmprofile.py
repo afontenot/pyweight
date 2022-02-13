@@ -46,7 +46,9 @@ class ProfileWindow(QDialog):
         super().__init__(*args, **kwargs)
         uic.loadUi("ui/profilemanager.ui", self)
 
-        self.parent = parent
+        self.config = parent.plan
+        self.inflight = parent.inflight_profile_changes
+        self.save = parent.save_prefs
         self.mode = mode
 
         # initialize GUI
@@ -75,8 +77,8 @@ class ProfileWindow(QDialog):
         self.bfp_othergender_radio.toggled.connect(self.changed_gender)
 
         # store units used in the dialog before they are saved in the main window
-        self.current_height_unit = self.parent.plan.height_unit
-        self.current_weight_unit = self.parent.plan.weight_unit
+        self.current_height_unit = self.config.height_unit
+        self.current_weight_unit = self.config.weight_unit
 
         self.show()
 
@@ -88,30 +90,30 @@ class ProfileWindow(QDialog):
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.config_buttons.button(QDialogButtonBox.Apply).setEnabled(False)
         # set UI values
-        self.kg_radio.setChecked(self.parent.plan.units == "metric")
-        self.cycle_spinbox.setValue(self.parent.plan.cycle)
-        self.show_adjust_cbox.setChecked(self.parent.plan.always_show_adj)
+        self.kg_radio.setChecked(bool(self.config.units == "metric"))
+        self.cycle_spinbox.setValue(self.config.cycle)
+        self.show_adjust_cbox.setChecked(bool(self.config.always_show_adj))
         self.bfp_automatic_radio.setChecked(
-            self.parent.plan.body_fat_method == "automatic"
+            bool(self.config.body_fat_method == "automatic")
         )
-        self.bfp_manual_radio.setChecked(self.parent.plan.body_fat_method == "manual")
-        self.age_spinbox.setValue(self.parent.plan.age)
-        self.sex_slider.setValue(round(self.parent.plan.gender_prop * 100))
-        self.manual_bfp_spinbox.setValue(self.parent.plan.manual_body_fat * 100)
-        self._enable_disable_bfpitems(self.parent.plan.body_fat_method == "automatic")
-        self.bfp_female_radio.setChecked(self.parent.plan.gender_selection == "female")
-        self.bfp_male_radio.setChecked(self.parent.plan.gender_selection == "male")
+        self.bfp_manual_radio.setChecked(bool(self.config.body_fat_method == "manual"))
+        self.age_spinbox.setValue(self.config.age)
+        self.sex_slider.setValue(round(self.config.gender_prop * 100))
+        self.manual_bfp_spinbox.setValue(self.config.manual_body_fat * 100)
+        self._enable_disable_bfpitems(self.config.body_fat_method == "automatic")
+        self.bfp_female_radio.setChecked(bool(self.config.gender_selection == "female"))
+        self.bfp_male_radio.setChecked(bool(self.config.gender_selection == "male"))
         self.bfp_othergender_radio.setChecked(
-            self.parent.plan.gender_selection == "other"
+            bool(self.config.gender_selection == "other")
         )
-        self._enable_disable_customgender(self.parent.plan.gender_selection == "other")
+        self._enable_disable_customgender(self.config.gender_selection == "other")
 
         # special handling for inputs with units attached
         # we convert here from <unit>/day to <unit>/wk
-        self.wcrate_spin_box.setValue(self.parent.plan.wcrate * 7)
-        self.wcrate_spin_box.setSuffix(f" {self.parent.plan.weight_unit}/wk")
-        self.height_spinbox.setValue(self.parent.plan.height)
-        self.height_spinbox.setSuffix(f" {self.parent.plan.height_unit}")
+        self.wcrate_spin_box.setValue(self.config.wcrate * 7)
+        self.wcrate_spin_box.setSuffix(f" {self.config.weight_unit}/wk")
+        self.height_spinbox.setValue(self.config.height)
+        self.height_spinbox.setSuffix(f" {self.config.height_unit}")
 
     def _set_modified(self):
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(True)
@@ -120,8 +122,7 @@ class ProfileWindow(QDialog):
     def _apply_changes(self):
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.config_buttons.button(QDialogButtonBox.Apply).setEnabled(False)
-        self.parent.save_prefs(self.parent.inflight_profile_changes)
-        self.parent.refresh()
+        self.save(self.inflight)
         # need to refresh GUI to pick up changes to units, if any
         self._init_gui()
 
@@ -183,49 +184,30 @@ class ProfileWindow(QDialog):
     # they don't actually execute until the user accepts the dialog
     def kg_radio_toggled(self):
         if self.kg_radio.isChecked():
-
-            def fn():
-                self.parent.plan.units = "metric"
-
-            self.parent.inflight_profile_changes["units"] = fn
+            self.inflight[self.config.units] = "metric"
             self._set_height_ui_unit("cm")
             self._set_weight_ui_unit("kg")
         self._set_modified()
 
     def lbs_radio_toggled(self):
         if self.lbs_radio.isChecked():
-
-            def fn():
-                self.parent.plan.units = "imperial"
-
-            self.parent.inflight_profile_changes["units"] = fn
+            self.inflight[self.config.units] = "imperial"
             self._set_height_ui_unit("in")
             self._set_weight_ui_unit("lbs")
         self._set_modified()
 
     def changed_cycle(self, value):
-        def fn():
-            self.parent.plan.cycle = value
-
-        self.parent.inflight_profile_changes["cycle"] = fn
+        self.inflight[self.config.cycle] = value
         self._set_modified()
 
     def adjust_toggled(self):
         adjust_enabled = bool(self.show_adjust_cbox.checkState())
-
-        def fn():
-            self.parent.plan.always_show_adj = adjust_enabled
-
-        self.parent.inflight_profile_changes["always_show_adj"] = fn
+        self.inflight[self.config.always_show_adj] = adjust_enabled
         self._set_modified()
 
     def bfp_automatic_radio_toggled(self):
         if self.bfp_automatic_radio.isChecked():
-
-            def fn():
-                self.parent.plan.body_fat_method = "automatic"
-
-            self.parent.inflight_profile_changes["body_fat_method"] = fn
+            self.inflight[self.config.body_fat_method] = "automatic"
             self._set_modified()
             self._enable_disable_bfpitems(True)
             # have to set this manually because they aren't linked in UI
@@ -233,11 +215,7 @@ class ProfileWindow(QDialog):
 
     def bfp_manual_radio_toggled(self):
         if self.bfp_manual_radio.isChecked():
-
-            def fn():
-                self.parent.plan.body_fat_method = "manual"
-
-            self.parent.inflight_profile_changes["body_fat_method"] = fn
+            self.inflight[self.config.body_fat_method] = "manual"
             self._set_modified()
             self._enable_disable_bfpitems(False)
             self.bfp_automatic_radio.setChecked(False)
@@ -267,60 +245,33 @@ class ProfileWindow(QDialog):
         mbox.exec()
 
     def changed_age(self, value):
-        def fn():
-            self.parent.plan.age = value
-
-        self.parent.inflight_profile_changes["age"] = fn
+        self.inflight[self.config.age] = value
         self._set_modified()
 
     def changed_height(self, value):
-        def fn():
-            self.parent.plan.height = value
-
-        self.parent.inflight_profile_changes["height"] = fn
+        self.inflight[self.config.height] = value
         self._set_modified()
 
     def changed_wcrate(self, value):
         # we convert here from <unit>/wk to <unit>/day
-        def fn():
-            self.parent.plan.wcrate = value / 7
-
-        self.parent.inflight_profile_changes["wcrate"] = fn
+        self.inflight[self.config.wcrate] = value / 7
         self._set_modified()
 
     def changed_sex_prop(self, value):
         # we convert here from percentage to decimal
-        def fn():
-            self.parent.plan.gender_prop = value / 100
-
-        self.parent.inflight_profile_changes["gender_prop"] = fn
+        self.inflight[self.config.gender_prop] = value / 100
         self._set_modified()
 
     def changed_gender(self):
         if self.bfp_male_radio.isChecked():
-
-            def fn():
-                self.parent.plan.gender_selection = "male"
-
-            self.parent.inflight_profile_changes["gender_selection"] = fn
+            self.inflight[self.config.gender_selection] = "male"
         elif self.bfp_female_radio.isChecked():
-
-            def fn():
-                self.parent.plan.gender_selection = "female"
-
-            self.parent.inflight_profile_changes["gender_selection"] = fn
+            self.inflight[self.config.gender_selection] = "female"
         elif self.bfp_othergender_radio.isChecked():
-
-            def fn():
-                self.parent.plan.gender_selection = "other"
-
-            self.parent.inflight_profile_changes["gender_selection"] = fn
+            self.inflight[self.config.gender_selection] = "other"
         self._enable_disable_customgender(self.bfp_othergender_radio.isChecked())
         self._set_modified()
 
     def changed_manual_bfp(self, value):
-        def fn():
-            self.parent.plan.manual_body_fat = value / 100
-
-        self.parent.inflight_profile_changes["manual_body_fat"] = fn
+        self.inflight[self.config.manual_body_fat] = value / 100
         self._set_modified()

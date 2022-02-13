@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
                 writer.writerow(["Date", f"Mass ({self.plan.weight_unit})"])
                 today = datetime.now()
                 writer.writerow([today.strftime("%Y/%m/%d"), ""])
-            self.plan.path = path[0]
+            self.plan.path.set(path[0])
             self.open_data_file()
 
     def open_file(self):
@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
         if path[0] != "":
             if self.check_file_modified() == QMessageBox.Cancel:
                 return
-            self.plan.path = path[0]
+            self.plan.path.set(path[0])
             self.open_data_file()
 
     # if convert_units is set, the existing file data
@@ -282,16 +282,17 @@ class MainWindow(QMainWindow):
             return resp
         return None
 
-    def save_prefs(self, prefs_list, mode=None):
-        # we have a bunch of functions to run that apply the updates
-        for setting in prefs_list:
-            prefs_list[setting]()
+    def save_prefs(self, inflight, mode=None):
+        # the settings themselves serve as keys to retrieve the new values
+        for setting in inflight:
+            setting.set(inflight[setting])
         # if the units changed as the result of the previous step,
         # we resave the user's data file to use the preferred units
         if mode != "new" and self.plan.weight_unit != self.wt.units:
             self.save_file(True)
             self.open_data_file()
-        prefs_list = {}
+        inflight.clear()
+        self.refresh()
 
     def open_data_file(self):
         try:
@@ -324,7 +325,7 @@ class MainWindow(QMainWindow):
     def open_plan_file(self, path):
         self.plan = Profile(path)
         self.refresh_actions()
-        self.prefs.prev_plan = path
+        self.prefs.prev_plan.set(path)
         if self.prefs.open_prev and self.plan.path != "":
             self.open_data_file()
 
