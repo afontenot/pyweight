@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
-from wmsettings import WMSettings
+from pyweight.wmsettings import WMSettings
 
 
 class Profile(WMSettings):
