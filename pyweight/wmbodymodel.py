@@ -127,8 +127,8 @@ class WeightTracker:
     def knots(self):
         if not self._knots:
             day_distance = (self.data.end_date - self.data.start_date).days
-            number_of_cycles = day_distance // self.settings.cycle + 1
-            self._knots = [i * self.settings.cycle for i in range(1, number_of_cycles)]
+            number_of_cycles = day_distance // self.settings.cycle
+            self._knots = [i * self.settings.cycle for i in range(1, number_of_cycles + 1)]
         return self._knots
 
     # caches (and returns) a spline fit
