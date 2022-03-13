@@ -14,12 +14,12 @@ class Preferences(WMSettings):
 
 
 class PreferencesWindow(QDialog):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, prefs, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("ui/settings.ui", self)
 
-        self.config = parent.prefs
-        self.inflight = parent.inflight_preference_changes
+        # Preferences class in use by parent window
+        self.config = prefs
 
         self.config_buttons.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
         self.config_buttons.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
@@ -35,5 +35,5 @@ class PreferencesWindow(QDialog):
 
     def reopen_toggled(self):
         reopen_enabled = bool(self.reopen_cbox.checkState())
-        self.inflight[self.config.open_prev] = reopen_enabled
+        self.config.open_prev.inflight(reopen_enabled)
         self._set_modified()

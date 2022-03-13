@@ -22,6 +22,7 @@ from pyweight.wmplot import Canvas
 from pyweight.wmprefs import Preferences, PreferencesWindow
 from pyweight.wmprofile import Profile, ProfileWindow
 
+
 # This file contains the code for initialization and the main window class.
 
 
@@ -45,8 +46,6 @@ class MainWindow(QMainWindow):
         self.table_is_loaded = False
         # sometimes we need to move focus down a row after a QTableView update
         self.table_needs_focusmove = False
-        self.inflight_profile_changes = {}
-        self.inflight_preference_changes = {}
         self.wt = None
 
         # connect signals
@@ -104,7 +103,7 @@ class MainWindow(QMainWindow):
                 writer.writerow(["Date", f"Mass ({self.plan.weight_unit})"])
                 today = datetime.now()
                 writer.writerow([today.strftime("%Y/%m/%d"), ""])
-            self.plan.path.set(path[0])
+            self.plan.path = path[0]
             self.open_data_file()
 
     def open_file(self):
@@ -114,7 +113,7 @@ class MainWindow(QMainWindow):
         if path[0] != "":
             if self.check_file_modified() == QMessageBox.Cancel:
                 return
-            self.plan.path.set(path[0])
+            self.plan.path = path[0]
             self.open_data_file()
 
     # if convert_units is set, the existing file data
@@ -144,6 +143,9 @@ class MainWindow(QMainWindow):
             self, "New File", filter="Plan Files (*.wmplan)"
         )
         if path[0] != "":
+            if self.check_file_modified() == QMessageBox.Cancel:
+                return
+            self.file_open = False
             self.open_plan_file(path[0])
             self.edit_plan(mode="new")
 
@@ -173,20 +175,31 @@ class MainWindow(QMainWindow):
             pix.save(path[0], "PNG")
 
     def edit_plan(self, mode=None):
-        profile_window = ProfileWindow(self, mode)
+        profile_window = ProfileWindow(self.plan, self.save_plan, mode)
         ret = profile_window.exec()
         if ret != QDialog.Accepted:
+            self.plan.flush()
             return
-        self.save_prefs(self.inflight_profile_changes, mode)
-        if not mode == "new":
+
+    def save_plan(self):
+        self.plan.save()
+        if self.file_open:
+            # if the units changed as the result of the previous step,
+            # we resave the user's data file to use the preferred units
+            if self.plan.weight_unit != self.wt.units:
+                self.save_file(True)
+                self.open_data_file()
             self.update_plot()
+        else:
+            self.refresh()
 
     def edit_preferences(self):
-        prefs_window = PreferencesWindow(self)
+        prefs_window = PreferencesWindow(self.prefs)
         ret = prefs_window.exec()
         if ret != QDialog.Accepted:
+            self.prefs.flush()
             return
-        self.save_prefs(self.inflight_preference_changes)
+        self.prefs.save()
         self.update_plot()
 
     def show_about(self):
@@ -282,18 +295,6 @@ class MainWindow(QMainWindow):
             return resp
         return None
 
-    def save_prefs(self, inflight, mode=None):
-        # the settings themselves serve as keys to retrieve the new values
-        for setting in inflight:
-            setting.set(inflight[setting])
-        # if the units changed as the result of the previous step,
-        # we resave the user's data file to use the preferred units
-        if mode != "new" and self.plan.weight_unit != self.wt.units:
-            self.save_file(True)
-            self.open_data_file()
-        inflight.clear()
-        self.refresh()
-
     def open_data_file(self):
         try:
             with open(self.plan.path, encoding="utf-8", newline="") as csvfile:
@@ -325,7 +326,7 @@ class MainWindow(QMainWindow):
     def open_plan_file(self, path):
         self.plan = Profile(path)
         self.refresh_actions()
-        self.prefs.prev_plan.set(path)
+        self.prefs.prev_plan = path
         if self.prefs.open_prev and self.plan.path != "":
             self.open_data_file()
 
