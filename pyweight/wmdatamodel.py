@@ -120,8 +120,9 @@ class WeightTable(QAbstractListModel):
             row_count = len(self._data)
             # we have to warn QT which rows are about to be edited
             self.beginInsertRows(QModelIndex(), row_count, row_count + days_to_add - 1)
+            last_date_in_model = self._data[-1][0]
             for i in range(days_to_add):
-                new_date = self.end_date + timedelta(days=i + 1)
+                new_date = last_date_in_model + timedelta(days=i + 1)
                 self._data.append([new_date, new_date.strftime("%Y/%m/%d"), ""])
             self.endInsertRows()
             begin_index = self.index(row_count)
