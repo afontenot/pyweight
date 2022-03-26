@@ -177,9 +177,10 @@ class MainWindow(QMainWindow):
     def edit_plan(self, mode=None):
         profile_window = ProfileWindow(self.plan, self.save_plan, mode)
         ret = profile_window.exec()
-        if ret != QDialog.Accepted:
+        if ret == QDialog.Accepted:
+            self.save_plan()
+        else:
             self.plan.flush()
-            return
 
     def save_plan(self):
         self.plan.save()
