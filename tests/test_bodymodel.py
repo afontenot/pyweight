@@ -13,9 +13,9 @@ class FakeData:
     def __init__(self, unique_path, today=None, weight=100):
         settings_path = str(unique_path / "settings.ini")
         self.profile = Profile(settings_path)
-        self.profile.units.set("metric")
-        self.profile.height.set(150)
-        self.profile.wcrate.set(-0.1)
+        self.profile.units = "metric"
+        self.profile.height = 150
+        self.profile.wcrate = -0.1
         self.blank_lbs_csv = '"Date", "Mass (kg)"'
         self.weight_i = weight
         self.weight = weight
@@ -50,6 +50,9 @@ class FakeData:
         wt = self.table
         return WeightTracker(wt, self.profile)
 
+@pytest.fixture
+def fd(tmp_path):
+    return FakeData(tmp_path)
 
 # approximate figures taken from chart in Hall (2008)
 def test_delta_lean():
@@ -135,9 +138,8 @@ def test_delta_e_sanity():
     one_step = delta_e(80, 70, 60, 25)
     assert(round(one_step) == round(stage_1 + stage_2))
 
-def test_knots(tmp_path):
+def test_knots(fd):
     # with cycle days, no knots
-    fd = FakeData(tmp_path)
     for _ in range(fd.profile.cycle):
         fd.add_day(weight_change=0)
     assert(fd.tracker.knots == [])
@@ -146,10 +148,9 @@ def test_knots(tmp_path):
     fd.add_day(weight_change=0)
     assert(fd.tracker.knots == [fd.profile.cycle])
 
-def test_knots_with_missing_days(tmp_path):
+def test_knots_with_missing_days(fd):
     # check whether knot still appears with cycle + 1 days
     # when we make 2 of them blank
-    fd = FakeData(tmp_path)
     pre_days = (fd.profile.cycle - 1) // 2
     post_days = (fd.profile.cycle - 1) - pre_days
     for _ in range(pre_days):
@@ -160,8 +161,7 @@ def test_knots_with_missing_days(tmp_path):
         fd.add_day(weight_change=0)
     assert(fd.tracker.knots == [fd.profile.cycle])
 
-def test_interpolation(tmp_path):
-    fd = FakeData(tmp_path)
+def test_interpolation(fd):
     for _ in range(fd.profile.cycle):
         fd.add_day(weight_change=0)
     for _ in range(fd.profile.cycle):
@@ -171,16 +171,14 @@ def test_interpolation(tmp_path):
     actual = [round(x, 10) for x in fd.tracker.interpolation.get_coeffs()]
     assert(actual == expected)
 
-def test_adjustment_sanity_1(tmp_path):
+def test_adjustment_sanity_1(fd):
     # perfect adhesion -> adjustment of 0
-    fd = FakeData(tmp_path)
     for _ in range(fd.profile.cycle):
         fd.add_day(weight_change=fd.profile.wcrate)
     assert(fd.tracker.adjustment == 0)
 
-def test_adjustment_sanity_2(tmp_path):
+def test_adjustment_sanity_2(fd):
     # no change -> adjustment = delta_e
-    fd = FakeData(tmp_path)
     for _ in range(fd.profile.cycle):
         fd.add_day(weight_change=0)
     body_fat_i = initial_body_fat_est(fd.weight_i, fd.profile.age, fd.profile.height * 0.01, fd.profile.gender_prop)
