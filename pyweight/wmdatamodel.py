@@ -117,9 +117,6 @@ class WeightTable(QAbstractListModel):
                 new_date = last_date_in_model + timedelta(days=i + 1)
                 self._data.append([new_date, new_date.strftime("%Y/%m/%d"), ""])
             self.endInsertRows()
-            begin_index = self.index(row_count)
-            end_index = self.index(row_count + days_to_add - 1)
-            self.dataChanged.emit(begin_index, end_index)
 
     # this is hacky for sure, but we have to trust that the data CSV is sane
     @property

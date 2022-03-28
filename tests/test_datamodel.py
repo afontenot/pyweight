@@ -4,12 +4,18 @@ from copy import deepcopy
 from io import StringIO
 
 import pytest
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QAbstractItemView
 from freezegun import freeze_time
 
 from pyweight.wmdatamodel import WeightTable
 
 
 START_DATE = datetime.date(2000, 1, 1)
+
+
+# we have to have a global QApp to create QtWidgets
+app = QApplication([])
 
 
 class WeightTableBuilder:
@@ -49,13 +55,33 @@ class WeightTableBuilder:
         return self.__csv
 
 
+class SimpleView(QAbstractItemView):
+    def __init__(self):
+        super().__init__()
+        self.events = []
+
+    def setModel(self, model):
+        model.rowsAboutToBeInserted.connect(self.rowsAboutToBeInserted)
+        super().setModel(model)
+
+    def dataChanged(self, index_a, index_b, roles=None):
+        self.events.append(("dataChanged", index_a.row(), index_b.row()))
+
+    def rowsAboutToBeInserted(self, parent, start, end):
+        self.events.append(("rowsAboutToBeInserted", start, end))
+
+    def rowsInserted(self, parent, start, end):
+        self.events.append(("rowsInserted", start, end))
+
+
 @pytest.fixture
 def wtb():
     return WeightTableBuilder()
 
 
-# FIXME: add tests for QALM reimplemented functions
-# FIXME: test that callbacks fire correctly when add_dates is called
+@pytest.fixture
+def view():
+    return SimpleView()
 
 
 def test_init(wtb):
@@ -67,39 +93,85 @@ def test_init(wtb):
     assert wt.start_date == START_DATE
 
 
-def test_add_dates_no_change(wtb, qtmodeltester):
+def test_data(wtb):
+    wtb.add_day("101.111")
+    wtb.add_day()
+    wtb.add_day("101.111")
+    wt = wtb.build()
+    data = [wt.data(wt.index(row, 0), Qt.DisplayRole) for row in range(3)]
+    assert data == ["101.11", "", "101.11"]
+
+
+def test_set_data(wtb, view, qtmodeltester):
+    wtb.add_day("101.11")
+    wtb.add_day("101.11")
+    wt = wtb.build()
+    qtmodeltester.check(wt)
+    view.setModel(wt)
+    wt.setData(wt.index(1, 0), "101.12", Qt.EditRole)
+    data = [
+        [datetime.date(2000, 1, 1), "2000/01/01", 101.11],
+        [datetime.date(2000, 1, 2), "2000/01/02", 101.12],
+    ]
+    assert wt._data == data
+    events = [("dataChanged", 1, 1)]
+    assert view.events == events
+
+
+def test_header_data(wtb):
+    wtb.add_auto_day()
+    wt = wtb.build()
+    assert wt.headerData(0, Qt.Horizontal, Qt.DisplayRole) == "Mass (lbs)"
+    assert wt.headerData(0, Qt.Vertical, Qt.DisplayRole) == "2000/01/01"
+
+
+def test_add_dates_no_change(wtb, view, qtmodeltester):
     wt = wtb.empty_build()
     qtmodeltester.check(wt)
+    view.setModel(wt)
     before = deepcopy(wt._data)
     with freeze_time(START_DATE):
         wt.add_dates()
-        assert before == wt._data
+    assert before == wt._data
+    assert view.events == []
 
 
-def test_add_dates_final_blank(wtb, qtmodeltester):
+def test_add_dates_final_blank(wtb, view, qtmodeltester):
     wtb.add_auto_day()
     wt = wtb.build()
     qtmodeltester.check(wt)
-    with freeze_time("2000-01-02"):
+    view.setModel(wt)
+    with freeze_time("2000-01-01"):
         wt.add_dates()
-        data = [
-            [datetime.date(2000, 1, 1), "2000/01/01", 100],
-            [datetime.date(2000, 1, 2), "2000/01/02", ""],
-        ]
-        assert wt._data == data
+    data = [
+        [datetime.date(2000, 1, 1), "2000/01/01", 100],
+        [datetime.date(2000, 1, 2), "2000/01/02", ""],
+    ]
+    assert wt._data == data
+    events = [
+        ("rowsAboutToBeInserted", 1, 1),
+        ("rowsInserted", 1, 1),
+    ]
+    assert view.events == events
 
 
-def test_add_dates_missing(wtb, qtmodeltester):
+def test_add_dates_missing(wtb, view, qtmodeltester):
     wt = wtb.empty_build()
     qtmodeltester.check(wt)
+    view.setModel(wt)
     with freeze_time("2000-01-03"):
         wt.add_dates()
-        data = [
-            [datetime.date(2000, 1, 1), "2000/01/01", ""],
-            [datetime.date(2000, 1, 2), "2000/01/02", ""],
-            [datetime.date(2000, 1, 3), "2000/01/03", ""],
-        ]
-        assert wt._data == data
+    data = [
+        [datetime.date(2000, 1, 1), "2000/01/01", ""],
+        [datetime.date(2000, 1, 2), "2000/01/02", ""],
+        [datetime.date(2000, 1, 3), "2000/01/03", ""],
+    ]
+    assert wt._data == data
+    events = [
+        ("rowsAboutToBeInserted", 1, 2),
+        ("rowsInserted", 1, 2),
+    ]
+    assert view.events == events
 
 
 def test_units_lbs(wtb):
