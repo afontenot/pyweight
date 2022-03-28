@@ -67,17 +67,19 @@ def test_init(wtb):
     assert wt.start_date == START_DATE
 
 
-def test_add_dates_no_change(wtb):
+def test_add_dates_no_change(wtb, qtmodeltester):
     wt = wtb.empty_build()
+    qtmodeltester.check(wt)
     before = deepcopy(wt._data)
     with freeze_time(START_DATE):
         wt.add_dates()
         assert before == wt._data
 
 
-def test_add_dates_final_blank(wtb):
+def test_add_dates_final_blank(wtb, qtmodeltester):
     wtb.add_auto_day()
     wt = wtb.build()
+    qtmodeltester.check(wt)
     with freeze_time("2000-01-02"):
         wt.add_dates()
         data = [
@@ -87,8 +89,9 @@ def test_add_dates_final_blank(wtb):
         assert wt._data == data
 
 
-def test_add_dates_missing(wtb):
+def test_add_dates_missing(wtb, qtmodeltester):
     wt = wtb.empty_build()
+    qtmodeltester.check(wt)
     with freeze_time("2000-01-03"):
         wt.add_dates()
         data = [
