@@ -14,8 +14,8 @@ from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 #   * weights: get list of weights for every filled cell
 #   * daynumbers: get list of days since start for each filled cell
 class WeightTable(QAbstractListModel):
-    def __init__(self, parent, csvf):
-        super().__init__(parent)
+    def __init__(self, csvf):
+        super().__init__()
 
         # Internally, the data has three columns:
         #   [datetime, str_date, value]

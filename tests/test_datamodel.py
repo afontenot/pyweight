@@ -36,9 +36,8 @@ class WeightTableBuilder:
         self.__currentday += datetime.timedelta(days=1)
 
     def build(self):
-        self.parent = None
         csvf = csv.reader(StringIO(self.__csv))
-        return WeightTable(parent=self.parent, csvf=csvf)
+        return WeightTable(csvf)
 
     # does the minimum fix-up to have a working WT
     def empty_build(self):

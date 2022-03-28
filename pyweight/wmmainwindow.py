@@ -299,8 +299,8 @@ class MainWindow(QMainWindow):
     def open_data_file(self):
         try:
             with open(self.plan.path, encoding="utf-8", newline="") as csvfile:
-                reader = csv.reader(csvfile)
-                self.wt = WeightTable(parent=self.tableView, csvf=reader)
+                csvr = csv.reader(csvfile)
+                self.wt = WeightTable(csvr)
         except Exception as e:
             # file not found / corrupt / etc
             mbox = QMessageBox()
@@ -317,7 +317,10 @@ class MainWindow(QMainWindow):
         self.file_modified = False
         self.update_window_title()
 
-        self.update_table()
+        self.tableView.setModel(self.wt)
+        self.table_is_loaded = True
+        self.tableView.setVisible(True)
+
         self.refresh()
         self.refresh_actions()
         self.tableView.scrollToBottom()
@@ -346,11 +349,6 @@ class MainWindow(QMainWindow):
             if sibling.isValid():
                 self.tableView.setCurrentIndex(sibling)
                 self.table_needs_focusmove = False
-
-    def update_table(self):
-        self.tableView.setModel(self.wt)
-        self.table_is_loaded = True
-        self.tableView.setVisible(True)
 
     def update_window_title(self):
         title = "Weight Manager"

@@ -42,7 +42,7 @@ class FakeData:
             self.csv_io.close()
         self.csv_io = StringIO(self.blank_lbs_csv)
         csv_r = csv.reader(self.csv_io)
-        return WeightTable(None, csv_r)
+        return WeightTable(csv_r)
 
     @property
     def tracker(self):
