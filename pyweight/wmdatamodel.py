@@ -6,11 +6,6 @@ from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 # A simple model for QT's MVC architecture
 # Can be initialized with a CSV.
 #
-# Any method that reimplements a QT method *must* access the internal
-# data in reversed order, because this data is presented to the user
-# reverse chronologically (but internally, we usually need it in
-# increasing order).
-#
 # This class provides several convenience properties and methods:
 #   * units: gets the assumed units of the file
 #   * add_dates: fill model with empty dates when needed
