@@ -19,7 +19,7 @@ from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 #   * weights: get list of weights for every filled cell
 #   * daynumbers: get list of days since start for each filled cell
 class WeightTable(QAbstractListModel):
-    def __init__(self, parent=None, csvf=None):
+    def __init__(self, parent, csvf):
         super().__init__(parent)
 
         # Internally, the data has three columns:
@@ -37,18 +37,16 @@ class WeightTable(QAbstractListModel):
         # initialize the table from a CSV
         # currently we depend on a very specific format, which should
         # be created for the user as needed with a new file
-        if csvf:
-            header_row = next(csvf)
-            self.weight_colname = header_row[1]
-            self.weight_data = {}
-            for row in csvf:
-                date = datetime.strptime(row[0], "%Y/%m/%d").date()
-                value = row[1]
-                if value != "":
-                    value = float(value)
-                self._data.append([date, row[0], value])
+        header_row = next(csvf)
+        self.weight_colname = header_row[1]
+        for row in csvf:
+            date = datetime.strptime(row[0], "%Y/%m/%d").date()
+            value = row[1]
+            if value != "":
+                value = float(value)
+            self._data.append([date, row[0], value])
 
-            self.start_date = self._data[0][0]
+        self.start_date = self._data[0][0]
 
     # reimplements QAbstractListModel
     def rowCount(self, parent):
@@ -104,7 +102,6 @@ class WeightTable(QAbstractListModel):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 return self.weight_colname
-            # return header from reversed list, second column
             return self._data[section][1]
         return super().headerData(section, orientation, role)
 

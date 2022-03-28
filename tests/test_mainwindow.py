@@ -2,7 +2,7 @@ import pytest
 
 from pyweight.wmmainwindow import MainWindow
 
-# the tests we can do here are limited, because of heavily reliance on Qt
+# the tests we can do here are limited, because of heavy reliance on Qt
 
 class FakeMainWindow(MainWindow):
     def __init__(self):

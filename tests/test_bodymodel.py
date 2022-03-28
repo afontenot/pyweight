@@ -8,7 +8,6 @@ from pyweight.wmdatamodel import WeightTable
 from pyweight.wmprofile import Profile
 
 
-# FIXME: figure out how to make a fixture from this
 class FakeData:
     def __init__(self, unique_path, today=None, weight=100):
         settings_path = str(unique_path / "settings.ini")
