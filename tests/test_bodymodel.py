@@ -3,7 +3,12 @@ import pytest
 
 from datetime import datetime, timedelta
 from io import StringIO
-from pyweight.wmbodymodel import *
+from pyweight.wmbodymodel import (
+    WeightTracker,
+    delta_lean,
+    initial_body_fat_est,
+    delta_e,
+)
 from pyweight.wmdatamodel import WeightTable
 from pyweight.wmprofile import Profile
 
