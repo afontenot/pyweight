@@ -5,17 +5,13 @@ from io import StringIO
 
 import pytest
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QAbstractItemView
+from PyQt5.QtWidgets import QAbstractItemView
 from freezegun import freeze_time
 
 from pyweight.wmdatamodel import WeightTable
 
 
 START_DATE = datetime.date(2000, 1, 1)
-
-
-# we have to have a global QApp to create QtWidgets
-app = QApplication([])
 
 
 class WeightTableBuilder:
@@ -75,12 +71,12 @@ class SimpleView(QAbstractItemView):
 
 
 @pytest.fixture
-def wtb():
+def wtb(qtbot):
     return WeightTableBuilder()
 
 
 @pytest.fixture
-def view():
+def view(qtbot):
     return SimpleView()
 
 

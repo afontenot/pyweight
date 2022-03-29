@@ -1,3 +1,13 @@
 [build-system]
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+tests = [
+  'black',
+  'flake8',
+  'pytest',
+  'pytest-cov',
+  'pytest-qt',
+  'pytest-xvfb'
+]

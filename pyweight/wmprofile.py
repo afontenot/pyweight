@@ -56,16 +56,12 @@ class ProfileWindow(QDialog):
 
         # connect signals
         self.config_buttons.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
-        self.config_buttons.button(QDialogButtonBox.Apply).clicked.connect(
-            self._apply_changes
-        )
+        self.config_buttons.button(QDialogButtonBox.Apply).clicked.connect(self._apply)
         self.config_buttons.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
-        self.kg_radio.toggled.connect(self.kg_radio_toggled)
-        self.lbs_radio.toggled.connect(self.lbs_radio_toggled)
+        self.units_buttongroup.buttonClicked.connect(self.changed_units)
         self.cycle_spinbox.valueChanged.connect(self.changed_cycle)
         self.show_adjust_cbox.stateChanged.connect(self.adjust_toggled)
-        self.bfp_automatic_radio.toggled.connect(self.bfp_automatic_radio_toggled)
-        self.bfp_manual_radio.toggled.connect(self.bfp_manual_radio_toggled)
+        self.bfp_mode_buttongroup.buttonClicked.connect(self.changed_bfp_mode)
         self.bfp_info_button.clicked.connect(self.bfp_info_button_clicked)
         self.age_spinbox.valueChanged.connect(self.changed_age)
         self.height_spinbox.valueChanged.connect(self.changed_height)
@@ -93,9 +89,6 @@ class ProfileWindow(QDialog):
         self.kg_radio.setChecked(bool(self.config.units == "metric"))
         self.cycle_spinbox.setValue(self.config.cycle)
         self.show_adjust_cbox.setChecked(bool(self.config.always_show_adj))
-        self.bfp_automatic_radio.setChecked(
-            bool(self.config.body_fat_method == "automatic")
-        )
         self.bfp_manual_radio.setChecked(bool(self.config.body_fat_method == "manual"))
         self.age_spinbox.setValue(self.config.age)
         self.sex_slider.setValue(round(self.config.gender_prop * 100))
@@ -119,7 +112,7 @@ class ProfileWindow(QDialog):
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(True)
         self.config_buttons.button(QDialogButtonBox.Apply).setEnabled(True)
 
-    def _apply_changes(self):
+    def _apply(self):
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.config_buttons.button(QDialogButtonBox.Apply).setEnabled(False)
         self.save()
@@ -149,7 +142,7 @@ class ProfileWindow(QDialog):
             self.usage_advice_label,
         )
         for item in nonbinary_items:
-            item.setEnabled(is_other)
+            item.setVisible(is_other)
 
     def _set_height_ui_unit(self, unit):
         if self.current_height_unit == unit:
@@ -182,15 +175,12 @@ class ProfileWindow(QDialog):
 
     # all these functions create and store functions that modify the setting
     # they don't actually execute until the user accepts the dialog
-    def kg_radio_toggled(self):
+    def changed_units(self):
         if self.kg_radio.isChecked():
             self.config.units.inflight("metric")
             self._set_height_ui_unit("cm")
             self._set_weight_ui_unit("kg")
-        self._set_modified()
-
-    def lbs_radio_toggled(self):
-        if self.lbs_radio.isChecked():
+        else:
             self.config.units.inflight("imperial")
             self._set_height_ui_unit("in")
             self._set_weight_ui_unit("lbs")
@@ -205,20 +195,13 @@ class ProfileWindow(QDialog):
         self.config.always_show_adj.inflight(adjust_enabled)
         self._set_modified()
 
-    def bfp_automatic_radio_toggled(self):
+    def changed_bfp_mode(self):
         if self.bfp_automatic_radio.isChecked():
             self.config.body_fat_method.inflight("automatic")
-            self._set_modified()
-            self._enable_disable_bfpitems(True)
-            # have to set this manually because they aren't linked in UI
-            self.bfp_manual_radio.setChecked(False)
-
-    def bfp_manual_radio_toggled(self):
-        if self.bfp_manual_radio.isChecked():
+        else:
             self.config.body_fat_method.inflight("manual")
-            self._set_modified()
-            self._enable_disable_bfpitems(False)
-            self.bfp_automatic_radio.setChecked(False)
+        self._enable_disable_bfpitems(self.bfp_automatic_radio.isChecked())
+        self._set_modified()
 
     def bfp_info_button_clicked(self):
         mbox = QMessageBox()
@@ -264,14 +247,14 @@ class ProfileWindow(QDialog):
 
     def changed_gender(self):
         if self.bfp_male_radio.isChecked():
-            self.config.gender_selection("male")
+            self.config.gender_selection.inflight("male")
         elif self.bfp_female_radio.isChecked():
-            self.config.gender_selection("female")
+            self.config.gender_selection.inflight("female")
         elif self.bfp_othergender_radio.isChecked():
-            self.config.gender_selection("other")
+            self.config.gender_selection.inflight("other")
         self._enable_disable_customgender(self.bfp_othergender_radio.isChecked())
         self._set_modified()
 
     def changed_manual_bfp(self, value):
-        self.config.manual_body_fat(value / 100)
+        self.config.manual_body_fat.inflight(value / 100)
         self._set_modified()
