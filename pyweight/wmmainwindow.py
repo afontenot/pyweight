@@ -310,6 +310,7 @@ class MainWindow(QMainWindow):
         self.tableView.scrollToBottom()
 
         self.wt.dataChanged.connect(self.table_changed)
+        self.wt.rowsInserted.connect(self.move_cursor_down)
 
     def open_plan_file(self, path):
         self.plan = Profile(path)
