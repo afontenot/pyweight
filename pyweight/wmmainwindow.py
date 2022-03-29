@@ -99,8 +99,8 @@ class MainWindow(QMainWindow):
                 return
             with open(path[0], "w", encoding="utf-8", newline="") as csvfile:
                 writer = csv.writer(csvfile)
-                # header
-                writer.writerow(["Date", f"Mass ({self.plan.weight_unit})"])
+                # FIXME: moving CSV writing code to wmdata
+                writer.writerow(["Date", "Weight (kg)"])
                 today = datetime.now()
                 writer.writerow([today.strftime("%Y/%m/%d"), ""])
             self.plan.path = path[0]
@@ -116,24 +116,10 @@ class MainWindow(QMainWindow):
             self.plan.path = path[0]
             self.open_data_file()
 
-    # if convert_units is set, the existing file data
-    # will be converted to those units (from the other one)
-    def save_file(self, convert_units=False):
+    def save_file(self):
         with open(self.plan.path, "w", encoding="utf-8", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            # header
-            weight_header = self.wt.weight_colname
-            if convert_units:
-                weight_header = f"Mass ({self.plan.weight_unit})"
-            writer.writerow(["Date", weight_header])
-            for line in self.wt.csvdata:
-                weight = line[2]
-                if convert_units:
-                    if self.plan.weight_unit == "kg" and self.wt.units == "lbs":
-                        weight *= 0.45359237
-                    elif self.plan.weight_unit == "lbs" and self.wt.units == "kg":
-                        weight /= 0.45359237
-                writer.writerow([line[1], weight])
+            csvw = csv.writer(csvfile)
+            self.wt.save_csv(csvw)
         self.file_modified = False
         self.action_save_file.setEnabled(False)
         self.update_window_title()
@@ -183,12 +169,10 @@ class MainWindow(QMainWindow):
             self.plan.flush()
 
     def save_plan(self):
+        old_units = self.plan.units
         self.plan.save()
         if self.file_open:
-            # if the units changed as the result of the previous step,
-            # we resave the user's data file to use the preferred units
-            if self.plan.weight_unit != self.wt.units:
-                self.save_file(True)
+            if self.plan.units != old_units:
                 self.open_data_file()
             self.update_plot()
         else:
@@ -300,7 +284,7 @@ class MainWindow(QMainWindow):
         try:
             with open(self.plan.path, encoding="utf-8", newline="") as csvfile:
                 csvr = csv.reader(csvfile)
-                self.wt = WeightTable(csvr)
+                self.wt = WeightTable(csvr, self.plan.units)
         except Exception as e:
             # file not found / corrupt / etc
             mbox = QMessageBox()

@@ -16,12 +16,16 @@ START_DATE = datetime.date(2000, 1, 1)
 
 class WeightTableBuilder:
     def __init__(self):
-        self.__csv = "Date,Mass (lbs)"
+        self.__csv = "Date,Weight (kg)"
         self.__baseweight = "100"
         self.__currentday = START_DATE
         self.parent = None
+        self.units = "metric"
 
-    def replace_header(self, header):
+    def replace_units(self, units):
+        self.units = units
+        unit = "lbs" if self.units == "imperial" else "kg"
+        header = f"Weight ({unit})"
         if "\n" not in self.__csv:
             self.__csv = header
         else:
@@ -39,7 +43,7 @@ class WeightTableBuilder:
 
     def build(self):
         csvf = csv.reader(StringIO(self.__csv))
-        return WeightTable(csvf)
+        return WeightTable(csvf, self.units)
 
     # does the minimum fix-up to have a working WT
     def empty_build(self):
@@ -85,7 +89,6 @@ def test_init(wtb):
     data = [[START_DATE, "2000/01/01", ""]]
     assert wt._data == data
     assert wt.has_new_plottable_data is False
-    assert wt.weight_colname == "Mass (lbs)"
     assert wt.start_date == START_DATE
 
 
@@ -117,7 +120,7 @@ def test_set_data(wtb, view, qtmodeltester):
 def test_header_data(wtb):
     wtb.add_auto_day()
     wt = wtb.build()
-    assert wt.headerData(0, Qt.Horizontal, Qt.DisplayRole) == "Mass (lbs)"
+    assert wt.headerData(0, Qt.Horizontal, Qt.DisplayRole) == "Weight (kg)"
     assert wt.headerData(0, Qt.Vertical, Qt.DisplayRole) == "2000/01/01"
 
 
@@ -168,17 +171,6 @@ def test_add_dates_missing(wtb, view, qtmodeltester):
         ("rowsInserted", 1, 2),
     ]
     assert view.events == events
-
-
-def test_units_lbs(wtb):
-    wt = wtb.empty_build()
-    assert wt.units == "lbs"
-
-
-def test_units_kg(wtb):
-    wtb.replace_header("Date,Mass (kg)")
-    wt = wtb.empty_build()
-    assert wt.units == "kg"
 
 
 def test_end_date_empty(wtb):

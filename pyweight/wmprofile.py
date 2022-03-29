@@ -2,18 +2,26 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
 from pyweight.wmsettings import WMSettings
+from pyweight.wmutils import lbs_to_kg, kg_to_lbs, m_to_in, m_to_cm, in_to_m, cm_to_m
+
+
+# set reasonable limits to the weekly wc rate
+WCRATE_MAX_LBS = 3
+WCRATE_MIN_LBS = -1 * WCRATE_MAX_LBS
+WCRATE_MAX_KG = round(lbs_to_kg(WCRATE_MAX_LBS), 2)
+WCRATE_MIN_KG = -1 * WCRATE_MAX_KG
 
 
 class Profile(WMSettings):
     defaults = {
-        "wcrate": -1 / 7,  # lbs/day
+        "wcrate": -0.4536 / 7,  # kg/day
         "cycle": 14,
         "path": "",
         "units": "imperial",
         "always_show_adj": True,
         "body_fat_method": "automatic",
         "age": 25,
-        "height": 65,
+        "height": 1.651,  # meters
         "gender_selection": "none",
         "gender_prop": 0.5,
         "manual_body_fat": 0.25,
@@ -32,14 +40,6 @@ class Profile(WMSettings):
     def __init__(self, path):
         super().__init__(self.defaults, self.conversions, path)
 
-    @property
-    def height_unit(self):
-        return "in" if self.units == "imperial" else "cm"
-
-    @property
-    def weight_unit(self):
-        return "lbs" if self.units == "imperial" else "kg"
-
 
 class ProfileWindow(QDialog):
     def __init__(self, profile, save_fn, mode, *args, **kwargs):
@@ -50,6 +50,11 @@ class ProfileWindow(QDialog):
         self.config = profile
         self.save = save_fn
         self.mode = mode
+
+        # store units used in the dialog before they are saved in the main window
+        self.current_units = self.config.units
+        self.current_height = self.config.height
+        self.current_wcrate = self.config.wcrate
 
         # initialize GUI
         self._init_gui()
@@ -71,10 +76,6 @@ class ProfileWindow(QDialog):
         self.bfp_male_radio.toggled.connect(self.changed_gender)
         self.bfp_female_radio.toggled.connect(self.changed_gender)
         self.bfp_othergender_radio.toggled.connect(self.changed_gender)
-
-        # store units used in the dialog before they are saved in the main window
-        self.current_height_unit = self.config.height_unit
-        self.current_weight_unit = self.config.weight_unit
 
         self.show()
 
@@ -102,11 +103,8 @@ class ProfileWindow(QDialog):
         self._enable_disable_customgender(self.config.gender_selection == "other")
 
         # special handling for inputs with units attached
-        # we convert here from <unit>/day to <unit>/wk
-        self.wcrate_spin_box.setValue(self.config.wcrate * 7)
-        self.wcrate_spin_box.setSuffix(f" {self.config.weight_unit}/wk")
-        self.height_spinbox.setValue(self.config.height)
-        self.height_spinbox.setSuffix(f" {self.config.height_unit}")
+        self._update_wcrate()
+        self._update_height()
 
     def _set_modified(self):
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(True)
@@ -144,46 +142,42 @@ class ProfileWindow(QDialog):
         for item in nonbinary_items:
             item.setVisible(is_other)
 
-    def _set_height_ui_unit(self, unit):
-        if self.current_height_unit == unit:
-            return
-        if unit == "cm":
-            self.height_spinbox.setValue(self.height_spinbox.value() * 2.54)
-        elif unit == "in":
-            self.height_spinbox.setValue(self.height_spinbox.value() / 2.54)
+    def _update_height(self):
+        if self.current_units == "metric":
+            value = m_to_cm(self.current_height)
         else:
-            raise ValueError(f"Invalid unit: {unit}")
+            value = m_to_in(self.current_height)
+        self.height_spinbox.blockSignals(True)
+        self.height_spinbox.setValue(value)
+        self.height_spinbox.blockSignals(False)
+        unit = "cm" if self.current_units == "metric" else "in"
         self.height_spinbox.setSuffix(f" {unit}")
-        self.current_height_unit = unit
 
-    def _set_weight_ui_unit(self, unit):
-        if self.current_weight_unit == unit:
-            return
-        current_target = self.wcrate_spin_box.value()
-        if unit == "kg":
-            self.wcrate_spin_box.setValue(current_target * 0.45359237)
-            self.wcrate_spin_box.setMinimum(-3 * 0.45359237)
-            self.wcrate_spin_box.setMaximum(3 * 0.45359237)
-        elif unit == "lbs":
-            self.wcrate_spin_box.setValue(current_target / 0.45359237)
-            self.wcrate_spin_box.setMinimum(-3)
-            self.wcrate_spin_box.setMaximum(3)
+    def _update_wcrate(self):
+        value = self.current_wcrate
+        if self.current_units == "metric":
+            self.wcrate_spin_box.setMinimum(WCRATE_MIN_KG)
+            self.wcrate_spin_box.setMaximum(WCRATE_MAX_KG)
         else:
-            raise ValueError(f"Invalid unit: {unit}")
+            value = kg_to_lbs(value)
+            self.wcrate_spin_box.setMinimum(WCRATE_MIN_LBS)
+            self.wcrate_spin_box.setMaximum(WCRATE_MAX_LBS)
+        self.wcrate_spin_box.blockSignals(True)
+        self.wcrate_spin_box.setValue(7 * value)
+        self.wcrate_spin_box.blockSignals(False)
+        unit = "kg" if self.current_units == "metric" else "lbs"
         self.wcrate_spin_box.setSuffix(f" {unit}/wk")
-        self.current_weight_unit = unit
 
     # all these functions create and store functions that modify the setting
     # they don't actually execute until the user accepts the dialog
     def changed_units(self):
-        if self.kg_radio.isChecked():
-            self.config.units.inflight("metric")
-            self._set_height_ui_unit("cm")
-            self._set_weight_ui_unit("kg")
-        else:
-            self.config.units.inflight("imperial")
-            self._set_height_ui_unit("in")
-            self._set_weight_ui_unit("lbs")
+        new_units = "metric" if self.kg_radio.isChecked() else "imperial"
+        if self.current_units == new_units:
+            return
+        self.current_units = new_units
+        self._update_height()
+        self._update_wcrate()
+        self.config.units.inflight(new_units)
         self._set_modified()
 
     def changed_cycle(self, value):
@@ -232,12 +226,21 @@ class ProfileWindow(QDialog):
         self._set_modified()
 
     def changed_height(self, value):
+        if self.current_units == "metric":
+            value = cm_to_m(value)
+        else:
+            value = in_to_m(value)
         self.config.height.inflight(value)
+        self.current_height = value
         self._set_modified()
 
     def changed_wcrate(self, value):
         # we convert here from <unit>/wk to <unit>/day
-        self.config.wcrate.inflight(value / 7)
+        value /= 7
+        if self.current_units == "imperial":
+            value = lbs_to_kg(value)
+        self.config.wcrate.inflight(value)
+        self.current_wcrate = value
         self._set_modified()
 
     def changed_sex_prop(self, value):

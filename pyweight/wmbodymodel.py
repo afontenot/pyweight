@@ -3,6 +3,8 @@ from math import exp
 from scipy.interpolate import LSQUnivariateSpline as LSpline
 from scipy.special import lambertw
 
+from pyweight.wmutils import lbs_to_kg
+
 # A set of equations for working out how many calories are associated with a
 # given amount of weight loss.
 #
@@ -105,14 +107,6 @@ def gender_proportion(gender_selection, gender_prop):
     return gender_proportion
 
 
-def height_in_meters(height, unit):
-    if unit == "in":
-        height *= 0.0254
-    elif unit == "cm":
-        height *= 0.01
-    return height
-
-
 # represents a set of weight change data and associated variables
 class WeightTracker:
     def __init__(self, data, settings):
@@ -149,6 +143,16 @@ class WeightTracker:
             )
         return self._interpolation
 
+    @property
+    def interpolation_metric(self):
+        if self.settings.units == "imperial":
+
+            def interp_fn(d):
+                return lbs_to_kg(self.interpolation(d))
+
+            return interp_fn
+        return self.interpolation
+
     # calculate daily difference, in calories, between chosen rate and calculated rate
     # note: you may only call adjustment if there are at least two data points,
     # because it depends on an spline fit across the data; otherwise self.interpolation()
@@ -164,22 +168,16 @@ class WeightTracker:
             last_cycle = self.knots[-1]
         else:
             last_cycle = first_day
-        weight_mult = 1 if self.data.units == "kg" else 0.45359237
-        today_weight = self.interpolation(today) * weight_mult
-        first_day_weight = self.interpolation(first_day) * weight_mult
-        last_cycle_weight = self.interpolation(last_cycle) * weight_mult
-        rate_kg = self.settings.wcrate * weight_mult
+
+        today_weight = self.interpolation_metric(today)
+        first_day_weight = self.interpolation_metric(first_day)
+        last_cycle_weight = self.interpolation_metric(last_cycle)
 
         # get caloric deficit associated with the current cycle *and*
         # caloric deficit associated with desired weight loss this cycle
 
         # use number of days into present cycle to calculate expected change
         days_in_current_cycle = today - last_cycle
-
-        # convert to meters
-        height_meters = height_in_meters(
-            self.settings.height, self.settings.height_unit
-        )
 
         gender_prop = gender_proportion(
             self.settings.gender_selection, self.settings.gender_prop
@@ -191,15 +189,15 @@ class WeightTracker:
                 last_cycle_weight,
                 today_weight,
                 self.settings.age,
-                height_meters,
+                self.settings.height,
                 gender_prop,
             )
             cycle_desired_delta_e = delta_e_auto(
                 first_day_weight,
                 last_cycle_weight,
-                last_cycle_weight + (rate_kg * days_in_current_cycle),
+                last_cycle_weight + (self.settings.wcrate * days_in_current_cycle),
                 self.settings.age,
-                height_meters,
+                self.settings.height,
                 gender_prop,
             )
         else:
@@ -212,7 +210,7 @@ class WeightTracker:
             cycle_desired_delta_e = delta_e(
                 first_day_weight,
                 last_cycle_weight,
-                last_cycle_weight + (rate_kg * days_in_current_cycle),
+                last_cycle_weight + (self.settings.wcrate * days_in_current_cycle),
                 self.settings.manual_body_fat * first_day_weight,
             )
 

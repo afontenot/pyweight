@@ -1,8 +1,9 @@
 import pytest
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialogButtonBox
 
 from pyweight.wmprofile import Profile, ProfileWindow
+from pyweight.wmutils import kg_to_lbs, m_to_in
 
 
 @pytest.fixture
@@ -13,8 +14,6 @@ def pw(tmp_path):
 
 
 def test_init_profilewindow(qtbot, pw):
-    assert pw.config.height_unit == "in"
-    assert pw.config.weight_unit == "lbs"
     for key, val in Profile.defaults.items():
         res = pw.config.__getattr__(key)
         assert res._raw == val
@@ -32,12 +31,12 @@ def test_init_profilewindow(qtbot, pw):
 
 def test_apply_button(qtbot, pw):
     test_settings = {
-        "wcrate": -2 / 7,
+        "wcrate": -0.226796185 / 7,
         "cycle": 20,
         "always_show_adj": False,
         "body_fat_method": "manual",
         "age": 30,
-        "height": 60,
+        "height": 1.524,
         "gender_selection": "female",
         "gender_prop": 0.7,
         "manual_body_fat": 0.3,
@@ -45,14 +44,14 @@ def test_apply_button(qtbot, pw):
     pw.show()
     qtbot.addWidget(pw)
     pw.wcrate_spin_box.clear()
-    qtbot.keyClicks(pw.wcrate_spin_box, str(test_settings["wcrate"] * 7))
+    qtbot.keyClicks(pw.wcrate_spin_box, str(kg_to_lbs(test_settings["wcrate"]) * 7))
     pw.cycle_spinbox.clear()
     qtbot.keyClicks(pw.cycle_spinbox, str(test_settings["cycle"]))
     qtbot.mouseClick(pw.show_adjust_cbox, Qt.LeftButton)
     pw.age_spinbox.clear()
     qtbot.keyClicks(pw.age_spinbox, str(test_settings["age"]))
     pw.height_spinbox.clear()
-    qtbot.keyClicks(pw.height_spinbox, str(test_settings["height"]))
+    qtbot.keyClicks(pw.height_spinbox, str(m_to_in(test_settings["height"])))
     qtbot.mouseClick(pw.bfp_othergender_radio, Qt.LeftButton)
     # hacky, but qtbot doesn't seem to have a clean way to do this
     pw.sex_slider.setValue(70)
@@ -89,30 +88,27 @@ def test_changed_gender(qtbot, pw):
         assert not item.isVisible()
 
 
-# note: this only tests the parts of unit changes internal to the profile window
-# the tests for the main window also need to check converting the file's units
-# FIXME: always save the file in metric, convert when needed
 def test_change_unit(qtbot, pw):
     pw.show()
     qtbot.addWidget(pw)
     qtbot.mouseClick(pw.kg_radio, Qt.LeftButton)
-    assert pw.wcrate_spin_box.value() == round(-1 * 0.45359237, 2)
+    assert pw.wcrate_spin_box.value() == -0.45
     assert pw.wcrate_spin_box.suffix() == " kg/wk"
-    assert pw.height_spinbox.value() == 65 * 2.54
+    assert pw.height_spinbox.value() == 165.10
     assert pw.height_spinbox.suffix() == " cm"
     pw.save()
     assert pw.config.units == "metric"
-    # assert pw.config.wcrate == round(-1 * 0.45359237, 2) / 7
-    assert pw.config.height == 65 * 2.54
+    assert pw.config.wcrate == -0.4536 / 7
+    assert pw.config.height == 1.651
     qtbot.mouseClick(pw.lbs_radio, Qt.LeftButton)
-    # assert pw.wcrate_spin_box.value() == -1
+    assert pw.wcrate_spin_box.value() == -1.0
     assert pw.wcrate_spin_box.suffix() == " lbs/wk"
-    assert pw.height_spinbox.value() == 65
+    assert pw.height_spinbox.value() == 165.10 / 2.54
     assert pw.height_spinbox.suffix() == " in"
     pw.save()
     assert pw.config.units == "imperial"
-    # assert pw.config.wcrate == -1
-    assert pw.config.height == 65
+    assert pw.config.wcrate == -0.4536 / 7
+    assert pw.config.height == 1.651
 
 
 def test_change_bfp_mode(qtbot, pw):

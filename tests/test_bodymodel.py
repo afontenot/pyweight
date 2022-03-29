@@ -18,9 +18,9 @@ class FakeData:
         settings_path = str(unique_path / "settings.ini")
         self.profile = Profile(settings_path)
         self.profile.units = "metric"
-        self.profile.height = 150
+        self.profile.height = 1.50
         self.profile.wcrate = -0.1
-        self.blank_lbs_csv = '"Date", "Mass (kg)"'
+        self.blank_lbs_csv = '"Date", "Weight (kg)"'
         self.weight_i = weight
         self.weight = weight
         self.today = today
@@ -47,7 +47,7 @@ class FakeData:
             self.csv_io.close()
         self.csv_io = StringIO(self.blank_lbs_csv)
         csv_r = csv.reader(self.csv_io)
-        return WeightTable(csv_r)
+        return WeightTable(csv_r, self.profile.units)
 
     @property
     def tracker(self):
@@ -183,7 +183,22 @@ def test_adjustment_sanity_2(fd):
     for _ in range(fd.profile.cycle):
         fd.add_day(weight_change=0)
     body_fat_i = initial_body_fat_est(
-        fd.weight_i, fd.profile.age, fd.profile.height * 0.01, fd.profile.gender_prop
+        fd.weight_i, fd.profile.age, fd.profile.height, fd.profile.gender_prop
+    )
+    target_weight = fd.weight_i + fd.profile.wcrate * fd.profile.cycle
+    correct = round(
+        delta_e(fd.weight_i, fd.weight, target_weight, body_fat_i) / fd.profile.cycle
+    )
+    assert fd.tracker.adjustment == correct
+
+
+# same as 2, but with imperial to force conversion
+def test_adjustment_sanity_3(fd):
+    fd.profile.units = "imperial"
+    for _ in range(fd.profile.cycle):
+        fd.add_day(weight_change=0)
+    body_fat_i = initial_body_fat_est(
+        fd.weight_i, fd.profile.age, fd.profile.height, fd.profile.gender_prop
     )
     target_weight = fd.weight_i + fd.profile.wcrate * fd.profile.cycle
     correct = round(

@@ -2,19 +2,20 @@ from datetime import datetime, timedelta
 
 from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 
+from pyweight.wmutils import kg_to_lbs, lbs_to_kg
+
 
 # A simple model for QT's MVC architecture
 # Can be initialized with a CSV.
 #
 # This class provides several convenience properties and methods:
-#   * units: gets the assumed units of the file
 #   * add_dates: fill model with empty dates when needed
 #   * end_date: get date of the last *filled* cell
 #   * dates: get list of dates for every filled cell
 #   * weights: get list of weights for every filled cell
 #   * daynumbers: get list of days since start for each filled cell
 class WeightTable(QAbstractListModel):
-    def __init__(self, csvf):
+    def __init__(self, csvf, units):
         super().__init__()
 
         # Internally, the data has three columns:
@@ -29,11 +30,17 @@ class WeightTable(QAbstractListModel):
         # replot when that happens.
         self.has_new_plottable_data = False
 
+        # If the user prefers imperial units to metric, this class pretends
+        # that all the data is imperial, even though we only save metric data
+        # to the underlying CSV.
+        self.imperial = units == "imperial"
+        self.unit = "lbs" if self.imperial else "kg"
+        self.weight_colname = f"Weight ({self.unit})"
+
         # initialize the table from a CSV
         # currently we depend on a very specific format, which should
         # be created for the user as needed with a new file
-        header_row = next(csvf)
-        self.weight_colname = header_row[1]
+        next(csvf)
         for row in csvf:
             date = datetime.strptime(row[0], "%Y/%m/%d").date()
             value = row[1]
@@ -56,6 +63,8 @@ class WeightTable(QAbstractListModel):
             val = self._data[index.row()][2]
             # we store high precision internally, but for display round the values
             if val != "":
+                if self.imperial:
+                    val = kg_to_lbs(val)
                 val = round(val, 2)
             return str(val)
         return None
@@ -69,6 +78,8 @@ class WeightTable(QAbstractListModel):
             if value != "":
                 try:
                     value = float(value)
+                    if self.imperial:
+                        value = lbs_to_kg(value)
                     # handle absurd values that might otherwise cause a crash
                     if value > 2000 or value <= 0:
                         return False
@@ -118,15 +129,6 @@ class WeightTable(QAbstractListModel):
                 self._data.append([new_date, new_date.strftime("%Y/%m/%d"), ""])
             self.endInsertRows()
 
-    # this is hacky for sure, but we have to trust that the data CSV is sane
-    @property
-    def units(self):
-        if "kg" in self.weight_colname:
-            return "kg"
-        if "lbs" in self.weight_colname:
-            return "lbs"
-        return None
-
     @property
     def end_date(self):
         dates = self.dates
@@ -141,6 +143,8 @@ class WeightTable(QAbstractListModel):
 
     @property
     def weights(self):
+        if self.imperial:
+            return [kg_to_lbs(row[2]) for row in self._data if row[2] != ""]
         return [row[2] for row in self._data if row[2] != ""]
 
     @property
@@ -156,3 +160,9 @@ class WeightTable(QAbstractListModel):
         return [
             1 + (row[0] - self.start_date).days for row in self._data if row[2] != ""
         ]
+
+    # FIXME: save the file to a temporary location and replace
+    def save_csv(self, csvw):
+        csvw.writerow(["Date", "Weight (kg)"])
+        for row in self._data:
+            csvw.writerow(row[1:])
