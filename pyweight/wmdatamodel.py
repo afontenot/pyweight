@@ -33,9 +33,7 @@ class WeightTable(QAbstractListModel):
         # If the user prefers imperial units to metric, this class pretends
         # that all the data is imperial, even though we only save metric data
         # to the underlying CSV.
-        self.imperial = units == "imperial"
-        self.unit = "lbs" if self.imperial else "kg"
-        self.weight_colname = f"Weight ({self.unit})"
+        self.set_units(units)
 
         # initialize the table from a CSV
         # currently we depend on a very specific format, which should
@@ -49,6 +47,12 @@ class WeightTable(QAbstractListModel):
             self._data.append([date, row[0], value])
 
         self.start_date = self._data[0][0]
+
+    def set_units(self, units):
+        self.imperial = units == "imperial"
+        self.unit = "lbs" if self.imperial else "kg"
+        self.weight_colname = f"Weight ({self.unit})"
+        self.dataChanged.emit(self.index(0), self.index(len(self._data)))
 
     # reimplements QAbstractListModel
     def rowCount(self, parent):

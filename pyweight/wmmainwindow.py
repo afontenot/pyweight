@@ -173,7 +173,7 @@ class MainWindow(QMainWindow):
         self.plan.save()
         if self.file_open:
             if self.plan.units != old_units:
-                self.open_data_file()
+                self.wt.set_units(self.plan.units)
             self.update_plot()
         else:
             self.refresh()
