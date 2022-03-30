@@ -1,0 +1,9 @@
+M: Add a built-in user guide
+M: Make the program translatable
+M: use docstrings instead of existing comment style
+  => good chance to add type annotations in a few places 
+L: Add check for updates
+L: Undo / Redo
+L: Consider reimplementing a headerview to get "Date" on top of the left column
+L: code internals: rename profile -> plan
+L: code internals: use "prefs" name consistently everywhere
