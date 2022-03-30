@@ -79,3 +79,6 @@ class Canvas(FigureCanvasQTAgg):
         self.axes.xaxis.set_major_locator(self.locator)
         self.axes.xaxis.set_major_formatter(self.formatter)
         self.axes.grid(True)
+
+    def export(self, path, filetype):
+        self.fig.savefig(path, format=filetype)

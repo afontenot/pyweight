@@ -151,13 +151,23 @@ class MainWindow(QMainWindow):
     def save_graph(self):
         if not self.canvas:
             return
-        path = QFileDialog.getSaveFileName(
-            self, "Save File", filter="PNG Files (*.png)"
+        valid_formats = (
+            "PNG Image (.png) (*.png);;"
+            "SVG Image (.svg) (*.svg);;"
+            "PDF Document (.pdf) (*.pdf)"
         )
-        if path[0] != "":
+        path = QFileDialog.getSaveFileName(self, "Save File", filter=valid_formats)[0]
+        if path == "":
+            return
+
+        if path.lower().endswith(".png"):
             pix = QPixmap(self.canvas.size())
             self.canvas.render(pix)
-            pix.save(path[0], "PNG")
+            pix.save(path, "PNG")
+        elif path.lower().endswith(".pdf"):
+            self.canvas.export(path, "pdf")
+        elif path.lower().endswith(".svg"):
+            self.canvas.export(path, "svg")
 
     def edit_plan(self, mode=None):
         profile_window = ProfileWindow(self.plan, self.save_plan, mode)
