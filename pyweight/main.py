@@ -11,5 +11,6 @@ def main():
     app.setOrganizationDomain("adam.sh")
     app.setApplicationName("pyweight")
     app.setApplicationVersion("0.1")
-    _ = MainWindow(app)
+    window = MainWindow(app)
+    window.show()
     app.exec()

@@ -69,10 +69,9 @@ class MainWindow(QMainWindow):
         self._return_shortcut = QShortcut(QKeySequence("Return"), self.tableView)
         self._return_shortcut.activated.connect(self.return_key_activated)
 
-        self.show()
-
         # timer will fire immediately after app.exec()
-        QTimer.singleShot(0, self._init_preferences)
+        if app is not None:
+            QTimer.singleShot(0, self._init_preferences)
 
     # initialize preferences - have to defer this after app.exec()
     def _init_preferences(self):

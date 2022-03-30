@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QAbstractItemView
 from freezegun import freeze_time
 
 from pyweight.wmdatamodel import WeightTable
+from pyweight.wmutils import kg_to_lbs
 
 
 START_DATE = datetime.date(2000, 1, 1)
@@ -49,10 +50,6 @@ class WeightTableBuilder:
     def empty_build(self):
         self.add_day()
         return self.build()
-
-    @property
-    def csv(self):
-        return self.__csv
 
 
 class SimpleView(QAbstractItemView):
@@ -206,6 +203,16 @@ def test_weights(wtb):
     assert wt.weights == weights
 
 
+def test_weights_imperial(wtb):
+    wtb.replace_units("imperial")
+    wtb.add_auto_day()
+    wtb.add_day()
+    wtb.add_auto_day()
+    wt = wtb.build()
+    weights = [kg_to_lbs(100), kg_to_lbs(100)]
+    assert wt.weights == weights
+
+
 def test_csvdata_empty(wtb):
     wt = wtb.empty_build()
     # empty csv should still have first row
@@ -214,6 +221,21 @@ def test_csvdata_empty(wtb):
 
 
 def test_csvdata(wtb):
+    wtb.add_auto_day()
+    wtb.add_day()
+    wtb.add_auto_day()
+    wtb.add_day()
+    wt = wtb.build()
+    csvdata = [
+        [datetime.date(2000, 1, 1), "2000/01/01", 100],
+        [datetime.date(2000, 1, 2), "2000/01/02", ""],
+        [datetime.date(2000, 1, 3), "2000/01/03", 100],
+    ]
+    assert wt.csvdata == csvdata
+
+
+def test_csvdata_imperial(wtb):
+    wtb.replace_units("imperial")
     wtb.add_auto_day()
     wtb.add_day()
     wtb.add_auto_day()

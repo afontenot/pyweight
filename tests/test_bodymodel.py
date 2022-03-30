@@ -30,12 +30,9 @@ class FakeData:
         if not self.today:
             self.today = datetime.fromisoformat("2000-01-01")
 
-    def add_day(self, weight=None, weight_change=None):
+    def add_day(self, weight_change=None):
         weight_str = ""
-        if weight is not None:
-            self.weight = weight
-            weight_str = self.weight
-        elif weight_change is not None:
+        if weight_change is not None:
             self.weight += weight_change
             weight_str = self.weight
         self.blank_lbs_csv += f"\n{self.today.strftime('%Y/%m/%d')},{weight_str}"
