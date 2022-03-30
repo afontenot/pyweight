@@ -1,4 +1,7 @@
+import csv
+import os
 from datetime import datetime, timedelta
+from tempfile import mkstemp
 
 from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 
@@ -15,7 +18,7 @@ from pyweight.wmutils import kg_to_lbs, lbs_to_kg
 #   * weights: get list of weights for every filled cell
 #   * daynumbers: get list of days since start for each filled cell
 class WeightTable(QAbstractListModel):
-    def __init__(self, csvf, units):
+    def __init__(self, csvpath, units):
         super().__init__()
 
         # Internally, the data has three columns:
@@ -35,18 +38,25 @@ class WeightTable(QAbstractListModel):
         # to the underlying CSV.
         self.set_units(units)
 
+        # If the CSV does not already exist, it is automatically created
+        if not os.path.exists(csvpath):
+            self.create_csv(csvpath)
+
         # initialize the table from a CSV
         # currently we depend on a very specific format, which should
         # be created for the user as needed with a new file
-        next(csvf)
-        for row in csvf:
-            date = datetime.strptime(row[0], "%Y/%m/%d").date()
-            value = row[1]
-            if value != "":
-                value = float(value)
-            self._data.append([date, row[0], value])
+        with open(csvpath, encoding="utf-8", newline="") as f:
+            csvr = csv.reader(f)
+            next(csvr)  # skip header
+            for row in csvr:
+                date = datetime.strptime(row[0], "%Y/%m/%d").date()
+                value = row[1]
+                if value != "":
+                    value = float(value)
+                self._data.append([date, row[0], value])
 
         self.start_date = self._data[0][0]
+        self.csvpath = csvpath
 
     def set_units(self, units):
         self.imperial = units == "imperial"
@@ -165,8 +175,20 @@ class WeightTable(QAbstractListModel):
             1 + (row[0] - self.start_date).days for row in self._data if row[2] != ""
         ]
 
-    # FIXME: save the file to a temporary location and replace
-    def save_csv(self, csvw):
-        csvw.writerow(["Date", "Weight (kg)"])
-        for row in self._data:
-            csvw.writerow(row[1:])
+    def create_csv(self, csvpath):
+        with open(csvpath, "w", encoding="utf-8", newline="") as f:
+            csvw = csv.writer(f)
+            csvw.writerow(["Date", "Weight (kg)"])
+            today = datetime.now()
+            csvw.writerow([today.strftime("%Y/%m/%d"), ""])
+
+    def save_csv(self):
+        dpath, fname = os.path.split(self.csvpath)
+        tmpfd, tmppath = mkstemp(prefix=f"{fname}.", dir=dpath, text=True)
+        # create file object to own the open fd; automatically closes for us
+        with os.fdopen(tmpfd, "w", encoding="utf-8", newline="") as f:
+            csvw = csv.writer(f)
+            csvw.writerow(["Date", "Weight (kg)"])
+            for row in self._data:
+                csvw.writerow(row[1:])
+        os.rename(tmppath, self.csvpath)

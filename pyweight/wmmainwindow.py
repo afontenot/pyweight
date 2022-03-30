@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-import csv
-from datetime import datetime
-from os.path import exists
+import os
 
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer
@@ -77,7 +75,7 @@ class MainWindow(QMainWindow):
     def _init_preferences(self):
         self.prefs = Preferences()
         if self.prefs.open_prev and self.prefs.prev_plan != "":
-            if exists(self.prefs.prev_plan):
+            if os.path.exists(self.prefs.prev_plan):
                 self.open_plan_file(self.prefs.prev_plan)
             else:
                 mbox = QMessageBox()
@@ -96,12 +94,9 @@ class MainWindow(QMainWindow):
         if path[0] != "":
             if self.check_file_modified() == QMessageBox.Cancel:
                 return
-            with open(path[0], "w", encoding="utf-8", newline="") as csvfile:
-                writer = csv.writer(csvfile)
-                # FIXME: moving CSV writing code to wmdata
-                writer.writerow(["Date", "Weight (kg)"])
-                today = datetime.now()
-                writer.writerow([today.strftime("%Y/%m/%d"), ""])
+            # this is safe because the QFileDialog asks user to overwrite it
+            if os.path.exists(path[0]):
+                os.unlink(path[0])
             self.plan.path = path[0]
             self.open_data_file()
 
@@ -116,9 +111,7 @@ class MainWindow(QMainWindow):
             self.open_data_file()
 
     def save_file(self):
-        with open(self.plan.path, "w", encoding="utf-8", newline="") as csvfile:
-            csvw = csv.writer(csvfile)
-            self.wt.save_csv(csvw)
+        self.wt.save_csv()
         self.file_modified = False
         self.action_save_file.setEnabled(False)
         self.update_window_title()
@@ -147,7 +140,6 @@ class MainWindow(QMainWindow):
         self.wt.add_dates()
         self.update_plot()
 
-    # TODO: implement other save formats (svg, pdf?)
     def save_graph(self):
         if not self.canvas:
             return
@@ -291,9 +283,7 @@ class MainWindow(QMainWindow):
 
     def open_data_file(self):
         try:
-            with open(self.plan.path, encoding="utf-8", newline="") as csvfile:
-                csvr = csv.reader(csvfile)
-                self.wt = WeightTable(csvr, self.plan.units)
+            self.wt = WeightTable(self.plan.path, self.plan.units)
         except Exception as e:
             # file not found / corrupt / etc
             mbox = QMessageBox()

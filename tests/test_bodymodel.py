@@ -1,8 +1,6 @@
-import csv
 import pytest
 
 from datetime import datetime, timedelta
-from io import StringIO
 from pyweight.wmbodymodel import (
     WeightTracker,
     delta_lean,
@@ -14,8 +12,9 @@ from pyweight.wmprofile import Profile
 
 
 class FakeData:
-    def __init__(self, unique_path, today=None, weight=100):
-        settings_path = str(unique_path / "settings.ini")
+    def __init__(self, tmp_path, today=None, weight=100):
+        self.csv_path = str(tmp_path / "data.csv")
+        settings_path = str(tmp_path / "settings.ini")
         self.profile = Profile(settings_path)
         self.profile.units = "metric"
         self.profile.height = 1.50
@@ -24,7 +23,6 @@ class FakeData:
         self.weight_i = weight
         self.weight = weight
         self.today = today
-        self.csv_io = None
         self.weighttable = None
         self.weighttracker = None
         if not self.today:
@@ -40,11 +38,9 @@ class FakeData:
 
     @property
     def table(self):
-        if self.csv_io:
-            self.csv_io.close()
-        self.csv_io = StringIO(self.blank_lbs_csv)
-        csv_r = csv.reader(self.csv_io)
-        return WeightTable(csv_r, self.profile.units)
+        with open(self.csv_path, "w") as f:
+            f.write(self.blank_lbs_csv)
+        return WeightTable(self.csv_path, self.profile.units)
 
     @property
     def tracker(self):

@@ -1,7 +1,5 @@
-import csv
 import datetime
 from copy import deepcopy
-from io import StringIO
 
 import pytest
 from PyQt5.QtCore import Qt
@@ -16,21 +14,13 @@ START_DATE = datetime.date(2000, 1, 1)
 
 
 class WeightTableBuilder:
-    def __init__(self):
+    def __init__(self, tmp_path):
         self.__csv = "Date,Weight (kg)"
         self.__baseweight = "100"
         self.__currentday = START_DATE
         self.parent = None
         self.units = "metric"
-
-    def replace_units(self, units):
-        self.units = units
-        unit = "lbs" if self.units == "imperial" else "kg"
-        header = f"Weight ({unit})"
-        if "\n" not in self.__csv:
-            self.__csv = header
-        else:
-            self.__csv = header + "\n" + "\n".join(self.__csv.split("\n")[1:])
+        self.csvpath = str(tmp_path / "data.csv")
 
     def add_day(self, weight=""):
         date = datetime.datetime.strftime(self.__currentday, "%Y/%m/%d")
@@ -43,8 +33,9 @@ class WeightTableBuilder:
         self.__currentday += datetime.timedelta(days=1)
 
     def build(self):
-        csvf = csv.reader(StringIO(self.__csv))
-        return WeightTable(csvf, self.units)
+        with open(self.csvpath, "w") as f:
+            f.write(self.__csv)
+        return WeightTable(self.csvpath, self.units)
 
     # does the minimum fix-up to have a working WT
     def empty_build(self):
@@ -72,8 +63,8 @@ class SimpleView(QAbstractItemView):
 
 
 @pytest.fixture
-def wtb(qtbot):
-    return WeightTableBuilder()
+def wtb(qtbot, tmp_path):
+    return WeightTableBuilder(tmp_path)
 
 
 @pytest.fixture
@@ -204,7 +195,7 @@ def test_weights(wtb):
 
 
 def test_weights_imperial(wtb):
-    wtb.replace_units("imperial")
+    wtb.units =  "imperial"
     wtb.add_auto_day()
     wtb.add_day()
     wtb.add_auto_day()
@@ -235,7 +226,7 @@ def test_csvdata(wtb):
 
 
 def test_csvdata_imperial(wtb):
-    wtb.replace_units("imperial")
+    wtb.units = "imperial"
     wtb.add_auto_day()
     wtb.add_day()
     wtb.add_auto_day()
