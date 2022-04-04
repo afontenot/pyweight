@@ -165,18 +165,18 @@ class MainWindow(QMainWindow):
         profile_window = ProfileWindow(self.plan, self.save_plan, mode)
         ret = profile_window.exec()
         if ret == QDialog.Accepted:
-            self.save_plan()
+            self.save_plan(mode)
         else:
             self.plan.flush()
 
-    def save_plan(self):
+    def save_plan(self, mode=None):
         old_units = self.plan.units
         self.plan.save()
         if self.file_open:
             if self.plan.units != old_units:
                 self.wt.set_units(self.plan.units)
             self.update_plot()
-        else:
+        elif mode != "new":
             self.refresh()
 
     def edit_preferences(self):
