@@ -15,8 +15,13 @@ from pyweight.wmutils import lbs_to_kg
 
 
 class FakePrefs(WMSettings):
-    defaults = {"open_prev": True, "prev_plan": "", "language": "English"}
-    conversions = {"open_prev": bool}
+    defaults = {
+        "open_prev": True,
+        "auto_save_data": False,
+        "prev_plan": "",
+        "language": "English",
+    }
+    conversions = {"open_prev": bool, "auto_save_data": bool}
 
     def __init__(self, tmp_path):
         path = str(tmp_path / "prefs.ini")
@@ -72,6 +77,23 @@ def test_edit_handling(qtbot, mw, monkeypatch):
     assert mw.windowTitle() == "data.csv* - Weight Manager"
     # (fake) return key should move cursor down a line
     assert mw.tableView.currentIndex().row() == 1
+
+
+def test_edit_with_autosave(qtbot, mw, monkeypatch):
+    mw.prefs.auto_save_data = True
+    mw.show()
+    qtbot.addWidget(mw)
+    rect = mw.tableView.visualRect(mw.wt.index(0))
+    qtbot.mouseClick(mw.tableView.viewport(), Qt.LeftButton, pos=rect.center())
+    qtbot.keyClicks(mw.tableView, " ")
+    editor_widget = mw.tableView.indexWidget(mw.wt.index(0))
+    qtbot.keyClicks(editor_widget, "100.0")
+    mw.return_key_activated()
+    monkeypatch.setattr(
+        pyweight.wmmainwindow.QMessageBox, "exec", lambda *args: QMessageBox.Discard
+    )
+    assert mw.file_modified == False
+    assert mw.windowTitle() == "data.csv - Weight Manager"
 
 
 def test_closing_safely(qtbot, mw, monkeypatch):

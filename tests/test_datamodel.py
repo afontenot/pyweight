@@ -195,7 +195,7 @@ def test_weights(wtb):
 
 
 def test_weights_imperial(wtb):
-    wtb.units =  "imperial"
+    wtb.units = "imperial"
     wtb.add_auto_day()
     wtb.add_day()
     wtb.add_auto_day()

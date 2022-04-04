@@ -321,10 +321,13 @@ class MainWindow(QMainWindow):
     def table_changed(self):
         self.move_cursor_down()
         if self.table_is_loaded and self.wt.has_new_plottable_data:
-            self.file_modified = True
             self.action_save_file.setEnabled(True)
-            self.update_window_title()
             self.refresh()
+            if self.prefs.auto_save_data:
+                self.save_file()
+            else:
+                self.file_modified = True
+                self.update_window_title()
 
     def move_cursor_down(self):
         if self.table_needs_focusmove:
