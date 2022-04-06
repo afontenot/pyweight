@@ -1,6 +1,6 @@
 # Welcome to Pyweight!
 
-Pyweight is a simple desktop application for managing an individual's
+Pyweight is a simple desktop application for managing your
 weight. Pyweight makes it easy to track your weight over time and can
 suggest changes to the number of calories you are eating to help you
 hit targets for weight loss, gains, or even maintenance.
@@ -25,13 +25,13 @@ repository.
 
 Dependencies:
 
- * Python (3.7+)
+ * Python (3.6+)
  * PyQt5
  * matplotlib
  * scipy
 
 If you have expertise with packaging Python programs or want to
-destribute this program for your Linux distribution, please file an
+distribute this program for your Linux distribution, please file an
 issue.
 
 ### Windows installation
@@ -61,6 +61,6 @@ If you can help with this, please file an issue.
 Once you have Pyweight installed, you can either run the Pyweight
 executable directly, or if you're running it from the source tree,
 
-    python3 pyweight.py
+    python3 -m pyweight
 
 should suffice.
