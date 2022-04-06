@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
     def __init__(self, app, *args, **kwargs):
         self.app = app
         super().__init__(*args, **kwargs)
-        uic.loadUi("ui/main.ui", self)
+        uic.loadUi("pyweight/ui/main.ui", self)
 
         # disable save until a file is edited
         self.action_save_file.setEnabled(False)

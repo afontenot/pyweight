@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QDialog, QDialogButtonBox
 class AboutWindow(QDialog):
     def __init__(self, versioninfo, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi("ui/about.ui", self)
+        uic.loadUi("pyweight/ui/about.ui", self)
 
         self.version_label.setText(f"Version: {versioninfo}")
 
