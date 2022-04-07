@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
 from pyweight.wmabout import AboutWindow
 from pyweight.wmbodymodel import WeightTracker
 from pyweight.wmdatamodel import WeightTable
+from pyweight.wmhelp import open_help
 from pyweight.wmplot import Canvas
 from pyweight.wmprefs import Preferences, PreferencesWindow
 from pyweight.wmprofile import Profile, ProfileWindow
@@ -193,13 +194,7 @@ class MainWindow(QMainWindow):
         about_window.exec()
 
     def show_help(self):
-        mbox = QMessageBox()
-        mbox.setIcon(QMessageBox.Information)
-        mbox.setText("Not yet implemented.")
-        mbox.setInformativeText("See Github for usage instructions.")
-        mbox.setStandardButtons(QMessageBox.Ok)
-        mbox.setDefaultButton(QMessageBox.Ok)
-        mbox.exec()
+        open_help()
 
     # fires when enter key is pressed on QTableView widget
     # we catch this to move down the list in our model
@@ -226,16 +221,16 @@ class MainWindow(QMainWindow):
 
     def start_pyweight_guide(self):
         mbox = QMessageBox()
-        mbox.setWindowTitle("Guide - Weight Manager")
-        mbox.setText("Welcome to pyweight!")
+        mbox.setWindowTitle("Guide - PyWeight")
+        mbox.setText("Welcome to PyWeight!")
         mbox.setInformativeText(
             "If you have not used this program before, this guide will help "
-            "you get started. If you already know how to use pyweight and "
+            "you get started. If you already know how to use PyWeight and "
             "have a plan file ready to import, you can click 'No' now.\n\n"
-            "To begin tracking your weight with pyweight, you will first need "
+            "To begin tracking your weight with PyWeight, you will first need "
             "to create a plan file. This file stores all of your settings, "
             "making it possible to create backups and share them between "
-            "multiple installations of pyweight.\n\n"
+            "multiple installations of PyWeight.\n\n"
             "You will also need to create a data file. This is a simple, "
             "human-readable CSV file that contains your recorded weight for "
             "each day you use the program.\n\n"
@@ -338,7 +333,7 @@ class MainWindow(QMainWindow):
                 self.table_needs_focusmove = False
 
     def update_window_title(self):
-        title = "Weight Manager"
+        title = "PyWeight"
         if self.file_open:
             fn = self.plan.path.split("/")[-1]
             if self.file_modified:

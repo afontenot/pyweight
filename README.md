@@ -1,4 +1,4 @@
-# Welcome to Pyweight!
+# Welcome to PyWeight!
 
 PyWeight is a simple weight management program for your desktop. 
 PyWeight makes it easy to track your weight over time and can
@@ -12,8 +12,8 @@ about weight loss and PyWeight's development.
 
 ## Installing PyWeight
 
-How you use Pyweight will depend on what platform you want to use it
-on. Pyweight should run on any PC platform with support for its
+How you use PyWeight will depend on what platform you want to use it
+on. PyWeight should run on any PC platform with support for its
 dependencies, but has only been tested on Linux and Windows.
 
 On Windows, you can download an experimental build from the

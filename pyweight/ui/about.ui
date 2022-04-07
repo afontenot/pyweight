@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About - Weight Manager</string>
+   <string>About - PyWeight</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -166,7 +166,7 @@ matplotlib
 Copyright (C) 2012- Matplotlib Development Team; All Rights Reserved.
 Licensed under the Matplotlib License Agreement.
 
-Windows distributions of pyweight may require MSVC runtime libraries. The developers of pyweight consider these to be &quot;System Libraries&quot; under Section 1 of the AGPL 3.0 license, and explicitly grant permission to link this program with them or distribute the program along with these libraries.
+Windows distributions of PyWeight may require MSVC runtime libraries. The developers of PyWeight consider these to be &quot;System Libraries&quot; under Section 1 of the GPL 3.0 license, and explicitly grant permission to link this program with them or distribute the program along with these libraries.
 
 MSVC Runtime Libraries
 Copyright (C) Microsoft

@@ -1,31 +1,31 @@
-# Guide to Using Pyweight
+# Guide to Using PyWeight
 
-Using Pyweight is easy! Read this document to learn more about basic
-Pyweight operations.
+Using PyWeight is easy! Read this document to learn more about basic
+PyWeight operations.
 
 ## Getting started
 
-The first time you start Pyweight, you should be greeted by the
+The first time you start PyWeight, you should be greeted by the
 built-in Guide. This window provides you with basic information about
-Pyweight, and will have you perform the necessary setup automatically.
+PyWeight, and will have you perform the necessary setup automatically.
 
-![screenshot of guide](../images/guide.png)
+![Fig 1. Screenshot of guide window](../images/guide.png)
 
-Pyweight needs to create two files to store your data. One of these
+PyWeight needs to create two files to store your data. One of these
 is a **plan file**, and contains personal information about you,
-including your height, age, and gender. Pyweight uses this
+including your height, age, and gender. PyWeight uses this
 information in order to provide more accurate advice to you about how
-to adjust your calorie intake. Pyweight is an entirely offline and
+to adjust your calorie intake. PyWeight is an entirely offline and
 open source application, so you can be assured that this data is not
 sent to anyone.
 
 If you click "No" at the guide prompt, or ever need to create a new
 **plan**, you can do so from the program's File menu.
 
-![new plan option in file menu](../images/new_plan.png)
+![Fig 2. New Plan option in file menu](../images/new_plan.png)
 
 When you create a new **plan**, you will be prompted to save a file,
-with the extension `.wmplan`. With Pyweight's default settings, you
+with the extension `.wmplan`. With PyWeight's default settings, you
 won't need to remember where you saved this file because it will be
 opened for you automatically in the futuer. However, you may want
 to keep it somewhere you'll remember so you can create backups.
@@ -34,7 +34,7 @@ After saving your plan file you will be prompted to change your plan
 settings. You can always change these settings in the future with the
 "Plan Settings" option under the "Settings" menu.
 
-![plan settings window](../images/plan_settings.png)
+![Fig 3. Screenshot of the plan settings window](../images/plan_settings.png)
 
 Most of these options are intended to be self-explanatory. For more
 details on editing your **plan**, see the [plan section](#Plans) of
@@ -56,24 +56,24 @@ associated plan.
 ## Basic Usage
 
 Once you have created your **plan** and **data** files, you're ready
-to begin using Pyweight!
+to begin using PyWeight!
 
-![Pyweight main window](../images/main_window.png)
+![Fig 4. Screenshot of the PyWeight main window](../images/main_window.png)
 
-Let's take a moment to get used to the Pyweight main window. The
+Let's take a moment to get used to the PyWeight main window. The
 window is separated into two panes. The first of these, on the left,
 contains a table that you will use to enter your weight.
 
-The Pyweight weight management concept revolves around weighing
+The PyWeight weight management concept revolves around weighing
 yourself every day, so the interface is built around the assumption
-that you will do this. Pyweight will continue to work if you
+that you will do this. PyWeight will continue to work if you
 occasionally miss a day, but some other program would likely serve
 your needs better if you plan to only record your weight on a weekly
 basis. For the reasoning behind this behavior, see the
 [Technical Concepts](Technical%20Concepts.html) page or the
 associated [blog post]().
 
-You use Pyweight by entering your weight regularly in the left
+You use PyWeight by entering your weight regularly in the left
 pane. Anything you enter will be automatically added to the graph in
 the right pane. When you add or change a weight entry, you can save
 your changes to the underlying data file by clicking "Save File" in
@@ -81,10 +81,10 @@ the "File" menu, or by pressing Ctrl-S. The program will also prompt
 you to save any unsaved data when you quit. When a **data** file has
 been edited, this is indicated by an asterisk `*` after the file name
 in the program window title. An option to save changes to your data
-files automatically is available in the Pyweight
+files automatically is available in the PyWeight
 [Settings](#Settings).
 
-Normally, Pyweight will automatically create blank weight entries
+Normally, PyWeight will automatically create blank weight entries
 for you. This happens whenever you add an entry, or when you restart
 the program. In some cases --- for example, if you leave the program
 open and forget to record your weight for several days --- you might
@@ -94,13 +94,13 @@ Ctrl-R.
 
 When creating your **plan**, you set a frequency for the program's
 diet adjustment advice. After this many days have passed since your
-first weight entry, Pyweight will give you advice that indicates
+first weight entry, PyWeight will give you advice that indicates
 how closely you have adhered to your diet.
 
-![screenshot of diet advice](diet_advice.png)
+![Fig 5. PyWeight's diet advice](../images/diet_advice.png)
 
 In this example, the user has adhered quite closely to their intended
-diet, and so Pyweight suggests a change of only 10 calories per day.
+diet, and so PyWeight suggests a change of only 10 calories per day.
 Such a value is small enough that no sigficant chances to one's meal
 plan would be called for. A larger difference, of 100 calories a day
 or more, would suggest a tweak is needed.
@@ -115,7 +115,7 @@ If the program has suggested you make a change, and you reduce your
 calorie intake, it wouldn't make sense to continue the straight line
 from the previous period of your diet. If you eat less than before,
 we should expect your weight of weight loss to increase. Therefore
-Pyweight will begin a new linear segment for the diet every time it
+PyWeight will begin a new linear segment for the diet every time it
 suggests an adjustment. Each new segment has an extra consraint: it
 is forced to be continuous with each preceding segment. See the
 [Technical Concepts](Technical%20Concepts.html) page for more about
@@ -135,7 +135,7 @@ not be saved or applied to your plan until you click "Apply" or "OK".
 
 ### Units
 
-You can change your preferred units in Pyweight at any time. Changes
+You can change your preferred units in PyWeight at any time. Changes
 to units are lossless, meaning that they don't cause rounding errors
 during the conversion from one unit to another.
 
@@ -155,14 +155,14 @@ to maintain your current weight, you can simply enter 0 here.
 
 The unmodified program will not allow you to enter clearly
 unreasonable rates of weight change (no more than 3 pounds per week).
-Note that just because the Pyweight allows you to enter a value, it
+Note that just because the PyWeight allows you to enter a value, it
 is not thereby endorsing your goal as reasonable for you or healthy
 for anyone. It is up to you, in consultation with a doctor, to come
 up with a reasonable target.
 
 ### Diet Adjustment Frequency
 
-Here you can select how often you want Pyweight to provide you with
+Here you can select how often you want PyWeight to provide you with
 advice on modifying your diet to hit your weight management target.
 Values from 7 to 30 days are selectable; values from 14 to 21 days
 are recommended.
@@ -182,7 +182,7 @@ a simple linear regression a reasonable approach for estimating
 your true weight loss over time. See the
 [Technical Concepts](Technical%20Concepts.html) page for more.
 
-![mid-period diet advice example](diet_advice_2.png)
+![Fig 6. Mid-period diet advice example](../images/diet_advice_2.png)
 
 In this example, the user is currently estimated to have eaten about
 50 calories too much each day. However, they are instructed to
@@ -191,12 +191,12 @@ more day, until the end of the current adjustment period.
 
 ### Initial Body Fat Percentage
 
-This is the most complicated of the **plan** settings. Pyweight uses
+This is the most complicated of the **plan** settings. PyWeight uses
 the values provided to calculate the energy density of the weight you
 lose (or gain) and from that the difference between the number of
 calories you ate and the number needed to hit your goal.
 
-![body fat percentage settings](bfp.png)
+![Fig 7. Body fat percentage settings](../images/bfp.png)
 
 If possible, you should select "Manual" mode and enter your true body
 fat percentage. This value should be provided from an accurate
@@ -214,7 +214,7 @@ still much better than assuming the same value for everyone.
 Age and height are self-explanatory. The gender option is a little
 bit more sophisticated.
 
-The authors of Pyweight reviewed the available medical literature on
+The authors of PyWeight reviewed the available medical literature on
 estimation of body fat, and found it lacking in several respects. In
 particular, many published formulae were not well-studied across
 different races and no formula we could find looked at body fat in
@@ -234,16 +234,16 @@ best compromise possible in view of the state of the literature.
 Users who have additional recommendation or can point to relevant
 research are welcomed to file an issue.
 
-If no gender is selected, Pyweight will treat the user as an
+If no gender is selected, PyWeight will treat the user as an
 average of the male and female options.
 
 ## Settings
 
-Pyweight has several settings (independent of the settings for your
+PyWeight has several settings (independent of the settings for your
 weight management plan) that can be adjusted. These settings are
-available by clicking "Pyweight Settings" under the "Settings" menu.
+available by clicking "PyWeight Settings" under the "Settings" menu.
 
-![pyweight preferences window](prefs.png)
+![Fig 8. Screenshot of the PyWeight preferences window](../images/prefs.png)
 
 Here you can choose whether your last used **plan** file is reopened
 automatically.
@@ -252,10 +252,10 @@ You can also choose whether changes made to your data files (such as
 adding a new weight entry) are automatically saved. You can always
 save your changes using the File menu.
 
-The Pyweight settings also contain an option to set the program
+The PyWeight settings also contain an option to set the program
 language. As of this writing, this function is inoperative, as no
 translations have yet been provided for the program. If you are able
-to translate Pyweight into another language, please create an issue.
+to translate PyWeight into another language, please create an issue.
 
 ## Exporting your data
 

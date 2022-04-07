@@ -1,16 +1,16 @@
-# Pyweight Technical Concepts
+# PyWeight Technical Concepts
 
-This document explains the theoretical background for the Pyweight
+This document explains the theoretical background for the PyWeight
 application. Ordinary users are not expected to need to read this.
 
 Users who wish to read a light overview of the ideas here and a
-discussion of weight loss using Pyweight may find the
+discussion of weight loss using PyWeight may find the
 [essay]()
-by Pyweight's primary author informative.
+by PyWeight's primary author informative.
 
-## How Pyweight works
+## How PyWeight works
 
-Pyweight is intended to make weight management easier by solving two
+PyWeight is intended to make weight management easier by solving two
 problems:
 
  * Fluctuations in body weight tend to swamp real changes on a daily
@@ -21,15 +21,15 @@ problems:
    expenditure (TDEE) is hard, and accurately counting every calorie
    you eat is arguably even harder.
 
-The method employed by Pyweight involves estimating the rate of
+The method employed by PyWeight involves estimating the rate of
 weight loss (in kg/day) by taking the derivative of statistically
 smoothed daily measurements. This basic idea was originally suggested
 by [The Hacker's Diet](https://www.fourmilab.ch/hackdiet/), though
-Pyweight contains a number of improvements.
+PyWeight contains a number of improvements.
 
-For a given period of `d` days, if the weight loss goal was `g`
-kilograms and the actual weight loss was `w` kilograms, then the
-difference between the goal and the actual change is `(g - w) / d`,
+For a given period of $d$ days, if the weight loss goal was $g$
+kilograms and the actual weight loss was $w$ kilograms, then the
+difference between the goal and the actual change is $(g - w) / d$,
 in kilograms per day.
 
 This approach not only gets rid of most fluctuations (by taking the
@@ -44,12 +44,12 @@ precisely planning meals, "try to eat 75 fewer calories every day" is
 far more actionable, because it translates in a straightforward way
 to actual meal-time decisions.
 
-Therefore, Piweight needs to estimate how many calories are
+Therefore, PyWeight needs to estimate how many calories are
 associated with a given quantity of weight loss. If we can calculate
-the size of the calorie deficit required to lose `g` kilograms, and
-the size of the deficit required to lose `w` kilograms, then we can
+the size of the calorie deficit required to lose $g$ kilograms, and
+the size of the deficit required to lose $w$ kilograms, then we can
 trivially calculate the number of calories the user missed their
-target by over the `d` day period, and therefore how many calories
+target by over the $d$ day period, and therefore how many calories
 they missed their target by on a daily basis.
 
 The constraint this program works under is that this calculation has
@@ -74,8 +74,8 @@ reducing the amount of mass the body permanently stores.
 
 This suggests a straightforward way of determining the size of the
 deficit required to lose a kilogram of mass. If an individual eats
-`n` fewer calories than their body consumes over a period of time,
-those `n` calories will necessarily (by conservation of energy) be
+$n$ fewer calories than their body consumes over a period of time,
+those $n$ calories will necessarily (by conservation of energy) be
 taken from its energy stores instead. If these energy stores are in
 the form of fat tissue, we can determine the expected amount of
 weight loss associated with the deficit using the typical energy
@@ -91,8 +91,8 @@ pounds via any method of achieving this deficit, whether it takes
 weeks, months, or years.
 
 Unfortunately, this commonly held belief is wrong: a pound of fat
-contains about 4280 calories (just over 9400 calories per kilogram).
-[^1] Obviously, fixing the incorrect value would not be too
+contains about 4280 calories (just over 9400 calories per 
+kilogram).[^1] Obviously, fixing the incorrect value would not be too
 difficult, but the apparent straightforwardness of this approach
 masks two crucial assumptions:
 
@@ -122,19 +122,17 @@ Mifflin - St. Jeor equation, energy needs are linear with body
 weight. If true, this is convenient because it suggests that one's
 weight over time follows a simple first order differential equation.
 
-Assuming the Mifflin - St. Jeor equation:
+Assuming the Mifflin - St. Jeor equation accurately describes the
+behavior of metabolism, weight over time is:
 
-    dx/dt = a(b - x)
+$$\frac{\mathit{dx}}{\mathit{dt}} = \frac{intake - activity\left(10 x - b\right)}{7700}$$
 
-where `a` and `b` are constants
+where $b$ is the constant
 
-    a = (activity * 10 / 7700)
-    b = (intake - 
-         activity(6.25 * height - 5.0 * age - 161 + 166 * sex)
-        ) / (activity * 10)
+$$b = 6.25 \mathit{height} - 5 \mathit{age} + 166 \mathit{sex} - 161$$
 
-and `x` is body weight. Here, `intake` is the daily calories
-consumed, `activity` is a multiplier indicating the level of activity
+and $x$ is body weight. Here, $\mathit{intake}$ is the daily calories
+consumed, $\mathit{activity}$ is a multiplier indicating the level of activity
 relative to the BMR (e.g. 1.4 indicates a fairly inactive adult), and
 sex is 0 for women and 1 for men. Units are calories, centimeters,
 and years. Note that the 7700 value reflects the expected energy
@@ -145,7 +143,7 @@ Solving this equation suggests that someone who eats like a
 metabolically identical person with their goal weight will
 exponentially approach that weight.
 
-![weight changes assuming linear energy use](weight_over_time.svg)
+![Fig 1. Weight changes assuming linear energy use](../images/weight_over_time.svg)
 
 Unfortunately, while it makes for a nice graph, the assumption that
 the energy expenditure of dieters varies linearly with their current
@@ -170,18 +168,18 @@ weight (lower or higher) and was trying to get back to that. The
 NIDDK model of diet performance suggests that someone who is 235 lbs,
 having recently gained 85 pounds will consume about 400 more calories
 per day than an otherwise metabolically equivalent individual of the
-same weight who recently lost 85 pounds. [^2] [^3]
+same weight who recently lost 85 pounds.[^2] [^3]
 
-This effect is partially explained by different in body composition.
-Lean body mass requires more energy to maintain than does fat. But
-there may also be some active component, whereby the body reduces its
-metabolic rate following weight loss more than can be explained by
-changes in body composition.
+This effect is partially explained by differences in body
+composition. Lean body mass requires more energy to maintain than
+does fat. But there may also be some active component, whereby the
+body reduces its metabolic rate following weight loss more than can
+be explained by changes in body composition.
 
 The existence of this effect --- at all --- is contentious. Some
-studies found no such effect. [^4]
+studies found no such effect.[^4]
 
-We suggest that while such an effect may make sense, both
+We suggest that while such an effect may make sense both
 physiologically and in terms of selective pressure, it is likely to
 be temporary. The NIDDK model shows a much larger effect for gaining
 weight than it does for losing weight. There is only a 50 calorie a
@@ -195,14 +193,14 @@ words, transitioning between these profiles must be possible, though
 it may take more time than the typical study length of the research
 used in developing this model.
 
-Pyweight takes a very interesting approach to these complexities,
+PyWeight takes a very interesting approach to these complexities,
 which also happens to be the simplest one: we completely ignore them.
 
 If our approach involved trying to determine the user's TDEE in order
 to provide them with a recommended number of calories to consume, we
 would have to take all this into account. However, we don't do this.
-The Pyweight approach is to determine the *difference* between the
-user's caloric target and their intake. Metabolism obviosuly has a
+The PyWeight approach is to determine the *difference* between the
+user's caloric target and their intake. Metabolism obviously has a
 direct effect on the total number of calories consumed, but it has an
 almost negligible effect on the energy density of given unit of
 weight loss.
@@ -217,7 +215,7 @@ As it turns out, while both of these claims in incorrect, their
 effects point in opposite directions and therefore 3500 calories / 
 pound is a more reasonable estimate than expected. As it turns out,
 the lean body mass lost during weight reduction has a typical density
-of about 824 calories a pound [^1], and therefore the 3500 calorie
+of about 824 calories a pound[^1], and therefore the 3500 calorie
 per pound estimate is almost exactly right if about 75% of the weight
 you lose is from fat.
 
@@ -230,76 +228,97 @@ individuals for very little fat mass, and approaching some high
 fraction (though not 1) for individuals with a large amount of fat
 losing a comparatively small amount of weight.
 
-Hall [^5] and Hall et. al [^6] provide a model describing the
-behavior of this ratio, and it is this model on which Pyweight's
+Hall[^5] and Hall et. al[^6] provide a model describing the
+behavior of this ratio, and it is this model on which PyWeight's
 calculation of weight loss composition is based.
 
-The Hall paper takes an empirical equation due to Forbes [^7]:
+The Hall paper takes an equation from Forbes[^7]:
 
-    FFM = 10.4 * ln(FM) + 14.2
+$$\mathit{FFM} = 10.4 \ln{\mathit{FM}} + 14.2$$
 
-or equivalently,
+Looking at this equation, we can see that it suggests a static
+relationship between fat mass $(\mathit{FM})$ and fat free mass
+$(\mathit{FFM})$. An individual described by this equation with only
+one kilogram of fat would have 14.2 kilograms of fat free mass. Such
+an equation clearly could not describe everyone. Forbes' equation was
+an empirical fit to a number of physically similar women.
 
-    FM = exp((FFM - 14.2) / 10.4)
+Hall effectively conjectures that this relationship extends to other
+body types as well, satisfying the equation
 
-which describes a relation that is hypothesized to hold between
-fat mass (FM) and fat free mass (FFM) during periods of weight
-change. The equation is transformed into a transcendental equation
-for fat mass that describes changes in fat mass following periods of
-weight loss. Since
+$$\mathit{FFM} = 10.4 \ln{\mathit{FM}} + A$$
 
-    FFMf + FMf = FMi + FFMi + ΔBW
+for a constant $A$ specific to each body type. If we let
+$\mathit{FFM_i}$, $\mathit{FFM_f}$, and
+$\mathit{FF_i}$, $\mathit{FF_f}$ describe the body's values before
+and after weight loss (respectively), then 
 
-we substitute back in the Forbes equation for FFMi:
+$$10.4 \ln{\mathit{FM_f}} = 10.4 \ln{\mathit{FM_i}} + \Delta\mathit{FFM}$$
 
-    FFMf + FMf = FMi + 10.4 * ln(FMi) + 14.2 + ΔBW
+and the $A$ on each side of the equation conveniently drops out. At
+first glance this equation doesn't seem to have simplified things,
+but notice that $\Delta\mathit{FFM}$ is just the portion of total
+change in mass (which we know, per hypothesis) not attributable to
+change in fat mass:
 
-Substituting:
+$$\Delta\mathit{FFM} = \Delta M - \left(\mathit{FM_f} - \mathit{FM_i}\right)$$
 
-    FMf = exp((FMi + 10.4 * ln(FMi) + ΔBW - FMf) / 10.4)
-        = exp(FMi / 10.4 + ln(FMi) + ΔBW / 10.4 - FMf / 10.4)
-        = exp(FMi / 10.4) * FMi * exp(ΔBW / 10.4) / exp(FMf / 10.4)
+We make that substitution and solve for $\mathit{FM_f}$:
 
-    FMf * exp(FMf / 10.4) = exp(FMi / 10.4) * FMi * exp(ΔBW / 10.4)
+$$10.4 \ln{\mathit{FM_f}} = 10.4 \ln{\mathit{FM_i}} + \Delta M - \left(\mathit{FM_f} - \mathit{FM_i}\right)$$
 
-This equation expresses the fat mass after a weight transition (FMf)
-in terms of the initial fat mass (FMi) and the overall change in body
-weight (ΔBW). It can be solved for FMf with the Lambert W function:
+$$
+\begin{align*}
+\mathit{FM_f} &= \exp{\left(\frac{10.4 \ln{\mathit{FM_i}} + \Delta\mathit{M} + \mathit{FM_i} - \mathit{FM_f}}{10.4}\right)}
+\\
+  &= \exp{\left(\ln{\mathit{FM_i}} + \frac{\Delta\mathit{M}}{10.4} + \frac{\mathit{FM_i}}{10.4} - \frac{\mathit{FM_f}}{10.4}\right)}
+\\
+  &= \mathit{FM_i}\left(\frac{\exp{\left(\frac{\mathit{FM_i}}{10.4}\right)} \exp{\left(\frac{\Delta\mathit{M}}{10.4}\right)}}{\exp{\left(\frac{\mathit{FM_f}}{10.4}\right)}}\right)
+\end{align*}
+$$
 
-    FMf = 10.4 * W(exp(ΔBW / 10.4) * FMi * exp(FMi / 10.4) / 10.4)
+$$\mathit{FM_f} \exp\left(\frac{\mathit{FM_f}}{10.4}\right) = \mathit{FM_i} \exp\left(\frac{\mathit{FM_i}}{10.4}\right) \exp\left(\frac{\Delta\mathit{M}}{10.4}\right)$$
 
-This equation was validated by Hall and others as providing an
-accurate estimate of body composition change during weight loss.
-Pyweight uses a simple modification of it to estimate these changes.
+This is a transcendental equation expressing the fat mass after a
+weight transition in terms of the initial fat mass and the overall
+change in body weight ($\Delta\mathit{M}$). It can be solved for
+$\mathit{FM_f}$ with the Lambert $\mathop{\mathrm{W}}$ function:
 
-We know that `FMi = BFPi * BWi` where BFPi designates the initial
+$$\mathit{FM_f} = 10.4 \mathop{\mathrm{W}}\left(\frac{\mathit{FM_i}}{10.4} \exp\left(\frac{\Delta\mathit{M}}{10.4}\right) \exp\left(\frac{\mathit{FM_i}}{10.4}\right)\right)$$
+
+Hall and others looked at studies of weight loss and found that this
+equation does accurately describe relative changes in fat and lean
+mass in a wide variety of body types.
+
+We know that $\mathit{FM_i} = \mathit{BFP_i} \mathit{M_i}$ where 
+$\mathit{BFP_i}$ designates the initial
 body fat percentage. This is something we can estimate on the basis
 of other variables (see below) or rely on the user to input directly.
 The initial body weight is obviously available as we have the data
-that the user entered in the Pyweight log. Determining changes in
-body weight is of course one of the main functions of Pyweight ---
+that the user entered in the PyWeight log. Determining changes in
+body weight is of course one of the main functions of PyWeight ---
 so putting all of this together, we can easily estimate the fraction
 of a user's weight loss which is due to fat loss.
 
 The caloric deficit associated with that weight loss is therefore
 simply
 
-    C = (FMf - FMi) * 9441 + (FFMf - FFMi) * 1820
+$$C = 9441 \left(\mathit{FM_f} - \mathit{FM_i}\right) + 1820 \left(\mathit{FFM_f} - \mathit{FFM_i}\right)$$
 
-So we can calculate, for a given weight change `w` over a period of
-`d` days, the size of the daily caloric deficit associated with that
+So we can calculate, for a given weight change $w$ over a period of
+$d$ days, the size of the daily caloric deficit associated with that
 change. Since we can calculate the same value for the *desired*
 weight change over the same period, we can easily determine the
 difference between the goal and what was achieved and present this
 to the user!
 
-### Addendum: benefits of the Pyweight model in using this equation
+### Addendum: benefits of the PyWeight model in using this equation
 
 The authors do not know of any other weight management tool that takes
 the same approach to estimating body composition changes over time.
 The NIDDK model and its associated online tool do allow planning
 weight loss over time, but the approach to dieting that this tool
-takes is (in the opinion of the Pyweight authors) flawed. 
+takes is (in the opinion of the PyWeight authors) flawed. 
 
 The NIDDK model assumes that weight changes will be achieved via a
 constant intake of whatever the number of calories is appropriate to
@@ -313,17 +332,17 @@ by over 1000 calories a day at the outset. This is large enough to
 be difficult to maintain, and in some cases the program can be made
 to output values that are clearly unsafe.
 
-Even though Piweight is based on the same research as the NIDDK
-model, the advice it provides is far more reasonable. The Piweight
+Even though PyWeight is based on the same research as the NIDDK
+model, the advice it provides is far more reasonable. The PyWeight
 approach to weight loss targets a constant *rate* of weight loss,
 rather than a constant caloric intake. The result is far more
 consistent with weight loss guidelines given by public health
 organizations. Here is what the same person's experience would be
-in Pyweight:
+in PyWeight:
 
-![example: lose 40 lbs in 180 days with pyweight](constant_rate.svg)
+![Fig 2. Losing 40 lbs in 180 days with PyWeight](../images/constant_rate.svg)
 
-The difference is remarkable. With Pyweight, the same individual
+The difference is remarkable. With PyWeight, the same individual
 would start at a deficit of only 715 calories a day, which would drop
 to just under 600 by the end of the diet. This feels realistically
 achievable. (Note that because the user's daily energy expenditure
@@ -333,9 +352,9 @@ required.)
 
 ### Addendum: just how bad is 3500 calories / pound?
 
-Pyweight's primary author lost about 30 pounds with versions of the
+PyWeight's primary author lost about 30 pounds with versions of the
 program (some built with spreadsheets) that assumed the naive 3500
-calorie per pound density of weight change. Pyweight's approach of
+calorie per pound density of weight change. PyWeight's approach of
 only considering *differences* between desired and achieved weight
 changes tends to smooth away mistakes like this, because in practice
 the advice usually amounts to "eat a little more the next two weeks",
@@ -350,7 +369,7 @@ good in the sense that they will still hone in on their desired
 outcome, but bad in the sense that they will end up thinking a 300
 calorie change is larger, or smaller, than it really is.
 
-Hall et. al [^6] think the 3500 calorie / pound estimate is quite
+Hall et. al[^6] think the 3500 calorie / pound estimate is quite
 bad. They write,
 
 > The recommendation that an overweight or obese person should expend
@@ -372,42 +391,42 @@ naive as this, but there's no reason to treat this as an inherent
 flaw of the simple rule of thumb. Rather, given the assumption that
 an individual's TDEE is linearly related to their current weight,
 the 3500 calorie rule actually generates the rather beautiful
-differential equation and the graph shown above --- where the number
+differential equation and graph shown above --- where the number
 of calories you eat results in approaching an equilibrium weight.
 It's still wrong, but not as dangerously so as Hall et. al imagine.
 
 ## Estimating initial body fat percentage
 
-Recall from the previous section that Pyweight determines the energy
+Recall from the previous section that PyWeight determines the energy
 density of weight loss from three variables: initial body weight,
 change in body weight, and initial body fat percentage. The first two
 are trivially known to the program because of how it operates. The
-latter is more complicated. Pyweight can (and does) allow the user to
+latter is more complicated. PyWeight can (and does) allow the user to
 enter this value manually, but most users will not know it with any
 accuracy.
 
-The Pyweight authors have reviewed a number of models for estimating
+The PyWeight authors have reviewed a number of models for estimating
 body fat percentage using a variety of other variables. All of them
 have flaws. Some haven't been tested; others have been tested but
 have been found to be inaccurate.
 
-One of the more promising methods is by Lee et al. [^9] A number of
+One of the more promising methods is by Lee et al.[^9] A number of
 issues has resulted in our ruling it out at present. The model is
 linear equation of a number of variables, but most of the other
 promising models show some non-linear effects. On the positive side,
 it does look at race as an explicit factor, but because it ended up
-as a significant variable in the model, Pyweight would have to
-request this data from the user. Pyweight would also have to exclude
+as a significant variable in the model, PyWeight would have to
+request this data from the user. PyWeight would also have to exclude
 all races other than the few considered by the model, and it is not
 obvious how to do this in a reasonable way. Some other potential
 issues are addressed in comments in the source file.
 
-At present Pyweight uses the CUN-BAE equation [^10]. This approach is
+At present PyWeight uses the CUN-BAE equation[^10]. This approach is
 limited in that all the subjects in the study were white Americans,
 but this does have the benefit that race isn't an explicit variable
 in the model (which is at present unworkable for the reasons given
 above). This model has the strong benefit that it has been subjected
-to external validation by Cui et. al [^11] and found to be quite
+to external validation by Cui et. al[^11] and found to be quite
 accurate, including surprisingly so for non-White Americans.
 
 This model is a quadratic equation in weight, age, height, and sex.
@@ -421,10 +440,10 @@ transgender, non-binary, or intersex people.
 
 A simplistic approach, but clearly an improvement on nothing at all,
 is to allow the user to select their position on a spectrum from male
-to female. It is not wholly unreasonable to expect that a Pyweight
+to female. It is not wholly unreasonable to expect that a PyWeight
 user on hormone replacement therapy might expect to have body fat
 somewhere in between that typical for typical cisgender male and
-female human bodies. At present, then, Pyweight makes this choice
+female human bodies. At present, then, PyWeight makes this choice
 available to users as a simple slider.
 
 ## Accurately estimating weight changes over time
@@ -436,18 +455,18 @@ meaning that weight measured on a daily basis will vary strongly
 depending on exactly when the weight is measured and the amount of
 eating and drinking in the previous 24 hours.
 
-Because Pyweight is based on the principle of fine-tuned adjustments
+Because PyWeight is based on the principle of fine-tuned adjustments
 to intake, it has a strong need for an accurate measurement of weight
 change over time.
 
 Rather than looking at day to day variations, which are almost
-impossible to measure with any accuracy, Pyweight estimates and
+impossible to measure with any accuracy, PyWeight estimates and
 provides feedback on weight changes over a longer period of time ---
 2 weeks by default.
 
-Asking Pyweight users to weigh themselves every two weeks would have
+Asking PyWeight users to weigh themselves every two weeks would have
 many of the same flaws as daily measurements because these individual
-point estimates would themselves be imprecise. Rather, Pyweight asks
+point estimates would themselves be imprecise. Rather, PyWeight asks
 users to weigh themselves on a daily basis and computes a regression
 line through the resulting data. The derivative of this line (in this
 case, the slope) is the average rate of weight loss over the period.
@@ -464,7 +483,7 @@ the starting point of each period could end up higher than the ending
 point of the previous one, resulting in a consistent over-estimate of
 the amount of weight lost.
 
-Rather, Pyweight takes a more sophisticated approach. We fit a spline
+Rather, PyWeight takes a more sophisticated approach. We fit a spline
 to the user's entire weight history. Specifically, we choose a linear
 spline with knots at each of the period endpoints, and fitting done
 with least squares. This mirrors the behavior of a linear regression,
@@ -477,16 +496,16 @@ fits are fast enough for this to be a negligible concern.
 
 One possible alternative is a moving average. For some types of
 weight loss program this approach would be appropriate, but as
-outlined above, the Pyweight approach is to have the user focus on
+outlined above, the PyWeight approach is to have the user focus on
 a constant rate of weight loss, with periods of consistent intake
 punctuated by minor adjustments. A moving average would fluctuate too
 much and be too dependent on data recency to give good results for
-Pyweight.
+PyWeight.
 
 The resulting spline fit is used to generate many of the data points
-needed by Pyweight equations. For example, rather than use the user's
+needed by PyWeight equations. For example, rather than use the user's
 first weight entry as the initial weight for the estimate of weight
-change density, Pyweight uses the first point on the spline instead.
+change density, PyWeight uses the first point on the spline instead.
 Likewise, for the user's current weight, rather than use the latest
 entry, the last point on the spline is used.
 

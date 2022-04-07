@@ -52,7 +52,7 @@ def mw(qtbot, tmp_path, datafile):
 def test_init_window(qtbot, mw):
     mw.show()
     qtbot.addWidget(mw)
-    assert mw.windowTitle() == "data.csv - Weight Manager"
+    assert mw.windowTitle() == "data.csv - PyWeight"
     assert mw.file_open
     assert mw.table_is_loaded
     assert isinstance(mw.plan, Profile)
@@ -74,7 +74,7 @@ def test_edit_handling(qtbot, mw, monkeypatch):
     monkeypatch.setattr(
         pyweight.wmmainwindow.QMessageBox, "exec", lambda *args: QMessageBox.Discard
     )
-    assert mw.windowTitle() == "data.csv* - Weight Manager"
+    assert mw.windowTitle() == "data.csv* - PyWeight"
     # (fake) return key should move cursor down a line
     assert mw.tableView.currentIndex().row() == 1
 
@@ -93,7 +93,7 @@ def test_edit_with_autosave(qtbot, mw, monkeypatch):
         pyweight.wmmainwindow.QMessageBox, "exec", lambda *args: QMessageBox.Discard
     )
     assert mw.file_modified == False
-    assert mw.windowTitle() == "data.csv - Weight Manager"
+    assert mw.windowTitle() == "data.csv - PyWeight"
 
 
 def test_closing_safely(qtbot, mw, monkeypatch):

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Introduction</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="welcome-to-pyweight">Welcome to PyWeight!</h1>
+<p>PyWeight is a simple desktop application for managing your weight. PyWeight makes it easy to track your weight over time and can suggest changes to the number of calories you are eating to help you hit targets for weight loss, gains, or even maintenance.</p>
+<h2 id="installing-pyweight">Installing PyWeight</h2>
+<p>How you use PyWeight will depend on what platform you want to use it on. PyWeight should run on any PC platform with support for its dependencies, but has only been tested on Linux and Windows.</p>
+<h3 id="linux-installation-from-source">Linux installation (from source)</h3>
+<p>One significant goal for future development is getting PyWeight in a form where it can easily be packaged by Linux distribution maintainers. At present, however, it can only be installed to a local directory and run from its source files.</p>
+<p>You can either use a <a href="https://github.com/afontenot/pyweight/releases">released version</a> of the application (recommended) or simply run it from a clone of the repository.</p>
+<p>Dependencies:</p>
+<ul>
+<li>Python (3.6+)</li>
+<li>PyQt5</li>
+<li>matplotlib</li>
+<li>scipy</li>
+</ul>
+<p>If you have expertise with packaging Python programs or want to distribute this program for your Linux distribution, please file an issue.</p>
+<h3 id="windows-installation">Windows installation</h3>
+<p>Experimental builds of the program are available for Windows in the <a href="https://github.com/afontenot/pyweight/releases">releases</a>.</p>
+<p>These builds are available as single executable files and do not need to be installed.</p>
+<p>We would like to provide installation and updates for PyWeight on Windows. If you want to help with this, please file an issue.</p>
+<h3 id="using-pyweight-on-other-platforms">Using PyWeight on other platforms</h3>
+<p>If you want to use PyWeight on other platforms, such as macOS, you currently need to follow the instructions for Linux usage and install PyWeight’s source dependencies.</p>
+<p>PyWeight is known to be able to start on macOS, but has not been tested beyond that. We’re currently looking for someone with the knowledge to package PyWeight as a macOS application in a dmg file. If you can help with this, please file an issue.</p>
+<h2 id="running-pyweight">Running PyWeight</h2>
+<p>Once you have PyWeight installed, you can either run the PyWeight executable directly, or if you’re running it from the source tree,</p>
+<pre><code>python3 -m pyweight</code></pre>
+<p>should suffice.</p>
+</body>
+</html>

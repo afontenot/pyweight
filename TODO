@@ -1,4 +1,13 @@
 M: Add a built-in user guide
+  => check for xdg-mime (shutil.which)
+  => if exists, xdg-mime query default x-scheme-handler/help
+  => if result, use xdg-open to open help
+  => if this fails, check for possible file paths to docs
+  => if found, open with xdg-open if available
+  => if no xdg-open, try firefox?
+  => if all this fails, pop open a message
+  => if user accepts, send them to we docs
+M: correct icon handling (try theme)
 M: Make the program translatable
 M: use docstrings instead of existing comment style
   => good chance to add type annotations in a few places 

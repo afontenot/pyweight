@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Preferences - Weight Manager</string>
+   <string>Preferences - PyWeight</string>
   </property>
   <property name="windowIcon">
    <iconset>
