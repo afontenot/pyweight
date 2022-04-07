@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication
 
 import pyweight
 from pyweight.wmmainwindow import MainWindow
+import pyweight.qresources
 
 
 def main():

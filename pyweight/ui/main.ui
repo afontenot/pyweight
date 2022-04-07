@@ -14,8 +14,7 @@
    <string>PyWeight</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../images/wl.svg</normaloff>../images/wl.svg</iconset>
+   <iconset theme="pyweight"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
@@ -182,6 +181,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../data/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

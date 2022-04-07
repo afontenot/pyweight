@@ -1,0 +1,7 @@
+<RCC>
+  <qresource>
+    <file>icons/hicolor/48x48/apps/pyweight.png</file>
+    <file>icons/hicolor/scalable/apps/pyweight.svg</file>
+    <file>icons/hicolor/index.theme</file>
+  </qresource>
+</RCC>
