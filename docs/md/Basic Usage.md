@@ -27,7 +27,7 @@ If you click "No" at the guide prompt, or ever need to create a new
 When you create a new **plan**, you will be prompted to save a file,
 with the extension `.wmplan`. With PyWeight's default settings, you
 won't need to remember where you saved this file because it will be
-opened for you automatically in the futuer. However, you may want
+opened for you automatically in the future. However, you may want
 to keep it somewhere you'll remember so you can create backups.
 
 After saving your plan file you will be prompted to change your plan

@@ -125,13 +125,13 @@ weight over time follows a simple first order differential equation.
 Assuming the Mifflin - St. Jeor equation accurately describes the
 behavior of metabolism, weight over time is:
 
-$$\frac{\mathit{dx}}{\mathit{dt}} = \frac{intake - activity\left(10 x - b\right)}{7700}$$
+$$\frac{\mathit{dx}}{\mathit{dt}} = \frac{intake + activity\left(b - 10 x\right)}{7700}$$
 
 where $b$ is the constant
 
 $$b = 6.25 \mathit{height} - 5 \mathit{age} + 166 \mathit{sex} - 161$$
 
-and $x$ is body weight. Here, $\mathit{intake}$ is the daily calories
+Here, $\mathit{intake}$ is the daily calories
 consumed, $\mathit{activity}$ is a multiplier indicating the level of activity
 relative to the BMR (e.g. 1.4 indicates a fairly inactive adult), and
 sex is 0 for women and 1 for men. Units are calories, centimeters,
@@ -234,11 +234,11 @@ calculation of weight loss composition is based.
 
 The Hall paper takes an equation from Forbes[^7]:
 
-$$\mathit{FFM} = 10.4 \ln{\mathit{FM}} + 14.2$$
+$$L = 10.4 \ln F + 14.2$$
 
 Looking at this equation, we can see that it suggests a static
-relationship between fat mass $(\mathit{FM})$ and fat free mass
-$(\mathit{FFM})$. An individual described by this equation with only
+relationship between fat mass $F$ and lean mass
+$L$. An individual described by this equation with only
 one kilogram of fat would have 14.2 kilograms of fat free mass. Such
 an equation clearly could not describe everyone. Forbes' equation was
 an empirical fit to a number of physically similar women.
@@ -246,51 +246,56 @@ an empirical fit to a number of physically similar women.
 Hall effectively conjectures that this relationship extends to other
 body types as well, satisfying the equation
 
-$$\mathit{FFM} = 10.4 \ln{\mathit{FM}} + A$$
+$$L = 10.4 \ln F + A$$
 
-for a constant $A$ specific to each body type. If we let
-$\mathit{FFM_i}$, $\mathit{FFM_f}$, and
-$\mathit{FF_i}$, $\mathit{FF_f}$ describe the body's values before
-and after weight loss (respectively), then 
+for a constant $A$ specific to each body type. 
 
-$$10.4 \ln{\mathit{FM_f}} = 10.4 \ln{\mathit{FM_i}} + \Delta\mathit{FFM}$$
+If we let $L_i$, $L_f$, and
+$F_i$, $F_f$ describe the body's masses before
+and after weight loss (respectively), then since by definition
+$L_f = L_i + \Delta L$,
+
+$$10.4 \ln{F_f} + A = 10.4 \ln{F_i} + A + \Delta L$$
 
 and the $A$ on each side of the equation conveniently drops out. At
 first glance this equation doesn't seem to have simplified things,
-but notice that $\Delta\mathit{FFM}$ is just the portion of total
-change in mass (which we know, per hypothesis) not attributable to
-change in fat mass:
+but notice that $\Delta L$ is just the portion of total
+change in mass not attributable to change in fat mass:
 
-$$\Delta\mathit{FFM} = \Delta M - \left(\mathit{FM_f} - \mathit{FM_i}\right)$$
+$$\Delta L = \Delta M - \Delta F$$
 
-We make that substitution and solve for $\mathit{FM_f}$:
-
-$$10.4 \ln{\mathit{FM_f}} = 10.4 \ln{\mathit{FM_i}} + \Delta M - \left(\mathit{FM_f} - \mathit{FM_i}\right)$$
+We make that substitution and isolate $F_f$.
 
 $$
 \begin{align*}
-\mathit{FM_f} &= \exp{\left(\frac{10.4 \ln{\mathit{FM_i}} + \Delta\mathit{M} + \mathit{FM_i} - \mathit{FM_f}}{10.4}\right)}
+10.4 \ln{F_f} &= 10.4 \ln{F_i} + \Delta M - \left(F_f - F_i\right)
+\\\\
+F_f &= \exp{\left(\frac{10.4 \ln{F_i} + \Delta M + F_i - F_f}{10.4}\right)}
 \\
-  &= \exp{\left(\ln{\mathit{FM_i}} + \frac{\Delta\mathit{M}}{10.4} + \frac{\mathit{FM_i}}{10.4} - \frac{\mathit{FM_f}}{10.4}\right)}
+  &= \exp{\left(\ln{F_i} + \frac{\Delta M}{10.4} + \frac{F_i}{10.4} - \frac{F_f}{10.4}\right)}
 \\
-  &= \mathit{FM_i}\left(\frac{\exp{\left(\frac{\mathit{FM_i}}{10.4}\right)} \exp{\left(\frac{\Delta\mathit{M}}{10.4}\right)}}{\exp{\left(\frac{\mathit{FM_f}}{10.4}\right)}}\right)
+  &= F_i \exp{\left(\frac{F_i}{10.4}\right)} \exp{\left(\frac{\Delta M}{10.4}\right)} / \exp{\left(\frac{F_f}{10.4}\right)}
+\\\\
+F_f \exp\left(\frac{F_f}{10.4}\right) &= F_i \exp\left(\frac{F_i}{10.4}\right) \exp\left(\frac{\Delta M}{10.4}\right)
 \end{align*}
 $$
 
-$$\mathit{FM_f} \exp\left(\frac{\mathit{FM_f}}{10.4}\right) = \mathit{FM_i} \exp\left(\frac{\mathit{FM_i}}{10.4}\right) \exp\left(\frac{\Delta\mathit{M}}{10.4}\right)$$
+Making the substitution $F_f = 10.4 u$,
 
-This is a transcendental equation expressing the fat mass after a
-weight transition in terms of the initial fat mass and the overall
-change in body weight ($\Delta\mathit{M}$). It can be solved for
-$\mathit{FM_f}$ with the Lambert $\mathop{\mathrm{W}}$ function:
+$$u \exp(u) = \frac{1}{10.4}\left(\ldots\right)$$
 
-$$\mathit{FM_f} = 10.4 \mathop{\mathrm{W}}\left(\frac{\mathit{FM_i}}{10.4} \exp\left(\frac{\Delta\mathit{M}}{10.4}\right) \exp\left(\frac{\mathit{FM_i}}{10.4}\right)\right)$$
+For positive $u$, equations of the form $u\exp(u) = v$ have the
+unique solution $u = \mathop{\mathrm{W_0}}\left(v\right)$, where
+$\mathop{\mathrm{W}}$ is the Lambert $\mathop{\mathrm{W}}$ function.
+Back-substituting,
 
-Hall and others looked at studies of weight loss and found that this
+$$F_f = 10.4 \mathop{\mathrm{W_0}}\left(\frac{F_i}{10.4} \exp\left(\frac{F_i}{10.4}\right) \exp\left(\frac{\Delta M}{10.4}\right)\right)$$
+
+Hall et. al looked at studies of weight loss and found that this
 equation does accurately describe relative changes in fat and lean
 mass in a wide variety of body types.
 
-We know that $\mathit{FM_i} = \mathit{BFP_i} \mathit{M_i}$ where 
+We know that $F_i = \mathit{BFP_i} \cdot \mathit{M_i}$ where 
 $\mathit{BFP_i}$ designates the initial
 body fat percentage. This is something we can estimate on the basis
 of other variables (see below) or rely on the user to input directly.
@@ -301,9 +306,10 @@ so putting all of this together, we can easily estimate the fraction
 of a user's weight loss which is due to fat loss.
 
 The caloric deficit associated with that weight loss is therefore
-simply
+simply the sum of the loss associated with each source weighted
+according to its calorie density:
 
-$$C = 9441 \left(\mathit{FM_f} - \mathit{FM_i}\right) + 1820 \left(\mathit{FFM_f} - \mathit{FFM_i}\right)$$
+$$C = 9441 \Delta F + 1820 \Delta L$$
 
 So we can calculate, for a given weight change $w$ over a period of
 $d$ days, the size of the daily caloric deficit associated with that
@@ -524,8 +530,6 @@ An exactly parallel method is followed to derive the caloric deficit
 associated with the desired weight loss for the current period.
 Determining the daily number of calories the user should consider
 adding or removing from their intake is thereby made simple.
-
-Footnotes:
 
 [^1]: Hall K. D. (2008). What is the required energy deficit per unit weight 
 loss?. International journal of obesity (2005), 32(3), 573–576.

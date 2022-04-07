@@ -180,10 +180,10 @@
 <p>It is easy to see that the assumption of a constant energy requirement is incorrect. A person who weighs 150 kilograms will need more energy than one who weighs 100 kilograms, simply in virtue of needing to expend more energy to move the extra 50 kilograms from point A to point B. Published equations for basal metabolic response, and therefore also for TDEE, rely on body weight, height, and other characteristics. Since one’s weight changes over the course of a diet, one’s energy requirements will also.</p>
 <p>For some common estimates of basal metabolic response, such as the Mifflin - St. Jeor equation, energy needs are linear with body weight. If true, this is convenient because it suggests that one’s weight over time follows a simple first order differential equation.</p>
 <p>Assuming the Mifflin - St. Jeor equation accurately describes the behavior of metabolism, weight over time is:</p>
-<p><span class="math display">\[\frac{\mathit{dx}}{\mathit{dt}} = \frac{intake - activity\left(10 x - b\right)}{7700}\]</span></p>
+<p><span class="math display">\[\frac{\mathit{dx}}{\mathit{dt}} = \frac{intake + activity\left(b - 10 x\right)}{7700}\]</span></p>
 <p>where <span class="math inline">\(b\)</span> is the constant</p>
 <p><span class="math display">\[b = 6.25 \mathit{height} - 5 \mathit{age} + 166 \mathit{sex} - 161\]</span></p>
-<p>and <span class="math inline">\(x\)</span> is body weight. Here, <span class="math inline">\(\mathit{intake}\)</span> is the daily calories consumed, <span class="math inline">\(\mathit{activity}\)</span> is a multiplier indicating the level of activity relative to the BMR (e.g. 1.4 indicates a fairly inactive adult), and sex is 0 for women and 1 for men. Units are calories, centimeters, and years. Note that the 7700 value reflects the expected energy density of weight loss: the assumption made here is the metric equivalent of 3500 calories per pound.</p>
+<p>Here, <span class="math inline">\(\mathit{intake}\)</span> is the daily calories consumed, <span class="math inline">\(\mathit{activity}\)</span> is a multiplier indicating the level of activity relative to the BMR (e.g. 1.4 indicates a fairly inactive adult), and sex is 0 for women and 1 for men. Units are calories, centimeters, and years. Note that the 7700 value reflects the expected energy density of weight loss: the assumption made here is the metric equivalent of 3500 calories per pound.</p>
 <p>Solving this equation suggests that someone who eats like a metabolically identical person with their goal weight will exponentially approach that weight.</p>
 <figure>
 <img src="../images/weight_over_time.svg" alt="Fig 1. Weight changes assuming linear energy use" /><figcaption aria-hidden="true">Fig 1. Weight changes assuming linear energy use</figcaption>
@@ -203,32 +203,37 @@
 <p>That said, such an estimate clearly can’t be right in many cases. If we imagine someone slightly underweight continuing to lose weight, they will at some point have no more fat to lose, and will therefore lose lean mass instead. We should expect the fraction of weight loss due to fat to be a continuous function, approaching 0 for individuals for very little fat mass, and approaching some high fraction (though not 1) for individuals with a large amount of fat losing a comparatively small amount of weight.</p>
 <p>Hall<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> and Hall et. al<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a> provide a model describing the behavior of this ratio, and it is this model on which PyWeight’s calculation of weight loss composition is based.</p>
 <p>The Hall paper takes an equation from Forbes<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>:</p>
-<p><span class="math display">\[\mathit{FFM} = 10.4 \ln{\mathit{FM}} + 14.2\]</span></p>
-<p>Looking at this equation, we can see that it suggests a static relationship between fat mass <span class="math inline">\((\mathit{FM})\)</span> and fat free mass <span class="math inline">\((\mathit{FFM})\)</span>. An individual described by this equation with only one kilogram of fat would have 14.2 kilograms of fat free mass. Such an equation clearly could not describe everyone. Forbes’ equation was an empirical fit to a number of physically similar women.</p>
+<p><span class="math display">\[L = 10.4 \ln F + 14.2\]</span></p>
+<p>Looking at this equation, we can see that it suggests a static relationship between fat mass <span class="math inline">\(F\)</span> and lean mass <span class="math inline">\(L\)</span>. An individual described by this equation with only one kilogram of fat would have 14.2 kilograms of fat free mass. Such an equation clearly could not describe everyone. Forbes’ equation was an empirical fit to a number of physically similar women.</p>
 <p>Hall effectively conjectures that this relationship extends to other body types as well, satisfying the equation</p>
-<p><span class="math display">\[\mathit{FFM} = 10.4 \ln{\mathit{FM}} + A\]</span></p>
-<p>for a constant <span class="math inline">\(A\)</span> specific to each body type. If we let <span class="math inline">\(\mathit{FFM_i}\)</span>, <span class="math inline">\(\mathit{FFM_f}\)</span>, and <span class="math inline">\(\mathit{FF_i}\)</span>, <span class="math inline">\(\mathit{FF_f}\)</span> describe the body’s values before and after weight loss (respectively), then</p>
-<p><span class="math display">\[10.4 \ln{\mathit{FM_f}} = 10.4 \ln{\mathit{FM_i}} + \Delta\mathit{FFM}\]</span></p>
-<p>and the <span class="math inline">\(A\)</span> on each side of the equation conveniently drops out. At first glance this equation doesn’t seem to have simplified things, but notice that <span class="math inline">\(\Delta\mathit{FFM}\)</span> is just the portion of total change in mass (which we know, per hypothesis) not attributable to change in fat mass:</p>
-<p><span class="math display">\[\Delta\mathit{FFM} = \Delta M - \left(\mathit{FM_f} - \mathit{FM_i}\right)\]</span></p>
-<p>We make that substitution and solve for <span class="math inline">\(\mathit{FM_f}\)</span>:</p>
-<p><span class="math display">\[10.4 \ln{\mathit{FM_f}} = 10.4 \ln{\mathit{FM_i}} + \Delta M - \left(\mathit{FM_f} - \mathit{FM_i}\right)\]</span></p>
+<p><span class="math display">\[L = 10.4 \ln F + A\]</span></p>
+<p>for a constant <span class="math inline">\(A\)</span> specific to each body type.</p>
+<p>If we let <span class="math inline">\(L_i\)</span>, <span class="math inline">\(L_f\)</span>, and <span class="math inline">\(F_i\)</span>, <span class="math inline">\(F_f\)</span> describe the body’s masses before and after weight loss (respectively), then since by definition <span class="math inline">\(L_f = L_i + \Delta L\)</span>,</p>
+<p><span class="math display">\[10.4 \ln{F_f} + A = 10.4 \ln{F_i} + A + \Delta L\]</span></p>
+<p>and the <span class="math inline">\(A\)</span> on each side of the equation conveniently drops out. At first glance this equation doesn’t seem to have simplified things, but notice that <span class="math inline">\(\Delta L\)</span> is just the portion of total change in mass not attributable to change in fat mass:</p>
+<p><span class="math display">\[\Delta L = \Delta M - \Delta F\]</span></p>
+<p>We make that substitution and isolate <span class="math inline">\(F_f\)</span>.</p>
 <p><span class="math display">\[
 \begin{align*}
-\mathit{FM_f} &amp;= \exp{\left(\frac{10.4 \ln{\mathit{FM_i}} + \Delta\mathit{M} + \mathit{FM_i} - \mathit{FM_f}}{10.4}\right)}
+10.4 \ln{F_f} &amp;= 10.4 \ln{F_i} + \Delta M - \left(F_f - F_i\right)
+\\\\
+F_f &amp;= \exp{\left(\frac{10.4 \ln{F_i} + \Delta M + F_i - F_f}{10.4}\right)}
 \\
-  &amp;= \exp{\left(\ln{\mathit{FM_i}} + \frac{\Delta\mathit{M}}{10.4} + \frac{\mathit{FM_i}}{10.4} - \frac{\mathit{FM_f}}{10.4}\right)}
+  &amp;= \exp{\left(\ln{F_i} + \frac{\Delta M}{10.4} + \frac{F_i}{10.4} - \frac{F_f}{10.4}\right)}
 \\
-  &amp;= \mathit{FM_i}\left(\frac{\exp{\left(\frac{\mathit{FM_i}}{10.4}\right)} \exp{\left(\frac{\Delta\mathit{M}}{10.4}\right)}}{\exp{\left(\frac{\mathit{FM_f}}{10.4}\right)}}\right)
+  &amp;= F_i \exp{\left(\frac{F_i}{10.4}\right)} \exp{\left(\frac{\Delta M}{10.4}\right)} / \exp{\left(\frac{F_f}{10.4}\right)}
+\\\\
+F_f \exp\left(\frac{F_f}{10.4}\right) &amp;= F_i \exp\left(\frac{F_i}{10.4}\right) \exp\left(\frac{\Delta M}{10.4}\right)
 \end{align*}
 \]</span></p>
-<p><span class="math display">\[\mathit{FM_f} \exp\left(\frac{\mathit{FM_f}}{10.4}\right) = \mathit{FM_i} \exp\left(\frac{\mathit{FM_i}}{10.4}\right) \exp\left(\frac{\Delta\mathit{M}}{10.4}\right)\]</span></p>
-<p>This is a transcendental equation expressing the fat mass after a weight transition in terms of the initial fat mass and the overall change in body weight (<span class="math inline">\(\Delta\mathit{M}\)</span>). It can be solved for <span class="math inline">\(\mathit{FM_f}\)</span> with the Lambert <span class="math inline">\(\mathop{\mathrm{W}}\)</span> function:</p>
-<p><span class="math display">\[\mathit{FM_f} = 10.4 \mathop{\mathrm{W}}\left(\frac{\mathit{FM_i}}{10.4} \exp\left(\frac{\Delta\mathit{M}}{10.4}\right) \exp\left(\frac{\mathit{FM_i}}{10.4}\right)\right)\]</span></p>
-<p>Hall and others looked at studies of weight loss and found that this equation does accurately describe relative changes in fat and lean mass in a wide variety of body types.</p>
-<p>We know that <span class="math inline">\(\mathit{FM_i} = \mathit{BFP_i} \mathit{M_i}\)</span> where <span class="math inline">\(\mathit{BFP_i}\)</span> designates the initial body fat percentage. This is something we can estimate on the basis of other variables (see below) or rely on the user to input directly. The initial body weight is obviously available as we have the data that the user entered in the PyWeight log. Determining changes in body weight is of course one of the main functions of PyWeight — so putting all of this together, we can easily estimate the fraction of a user’s weight loss which is due to fat loss.</p>
-<p>The caloric deficit associated with that weight loss is therefore simply</p>
-<p><span class="math display">\[C = 9441 \left(\mathit{FM_f} - \mathit{FM_i}\right) + 1820 \left(\mathit{FFM_f} - \mathit{FFM_i}\right)\]</span></p>
+<p>Making the substitution <span class="math inline">\(F_f = 10.4 u\)</span>,</p>
+<p><span class="math display">\[u \exp(u) = \frac{1}{10.4}\left(\ldots\right)\]</span></p>
+<p>For positive <span class="math inline">\(u\)</span>, equations of the form <span class="math inline">\(u\exp(u) = v\)</span> have the unique solution <span class="math inline">\(u = \mathop{\mathrm{W_0}}\left(v\right)\)</span>, where <span class="math inline">\(\mathop{\mathrm{W}}\)</span> is the Lambert <span class="math inline">\(\mathop{\mathrm{W}}\)</span> function. Back-substituting,</p>
+<p><span class="math display">\[F_f = 10.4 \mathop{\mathrm{W_0}}\left(\frac{F_i}{10.4} \exp\left(\frac{F_i}{10.4}\right) \exp\left(\frac{\Delta M}{10.4}\right)\right)\]</span></p>
+<p>Hall et. al looked at studies of weight loss and found that this equation does accurately describe relative changes in fat and lean mass in a wide variety of body types.</p>
+<p>We know that <span class="math inline">\(F_i = \mathit{BFP_i} \cdot \mathit{M_i}\)</span> where <span class="math inline">\(\mathit{BFP_i}\)</span> designates the initial body fat percentage. This is something we can estimate on the basis of other variables (see below) or rely on the user to input directly. The initial body weight is obviously available as we have the data that the user entered in the PyWeight log. Determining changes in body weight is of course one of the main functions of PyWeight — so putting all of this together, we can easily estimate the fraction of a user’s weight loss which is due to fat loss.</p>
+<p>The caloric deficit associated with that weight loss is therefore simply the sum of the loss associated with each source weighted according to its calorie density:</p>
+<p><span class="math display">\[C = 9441 \Delta F + 1820 \Delta L\]</span></p>
 <p>So we can calculate, for a given weight change <span class="math inline">\(w\)</span> over a period of <span class="math inline">\(d\)</span> days, the size of the daily caloric deficit associated with that change. Since we can calculate the same value for the <em>desired</em> weight change over the same period, we can easily determine the difference between the goal and what was achieved and present this to the user!</p>
 <h3 id="addendum-benefits-of-the-pyweight-model-in-using-this-equation">Addendum: benefits of the PyWeight model in using this equation</h3>
 <p>The authors do not know of any other weight management tool that takes the same approach to estimating body composition changes over time. The NIDDK model and its associated online tool do allow planning weight loss over time, but the approach to dieting that this tool takes is (in the opinion of the PyWeight authors) flawed.</p>
@@ -268,7 +273,6 @@
 <p>The resulting spline fit is used to generate many of the data points needed by PyWeight equations. For example, rather than use the user’s first weight entry as the initial weight for the estimate of weight change density, PyWeight uses the first point on the spline instead. Likewise, for the user’s current weight, rather than use the latest entry, the last point on the spline is used.</p>
 <p>The use of a spline also makes the calculation of the weight loss density for a given period straightforward. Because in the Hall model the density of a given amount of weight loss depends on the <em>initial</em> body weight, not the wait at the start of any arbitrary period, we determine the caloric deficit associated with <em>all</em> weight change from the first day to the beginning of the most recent period, and the deficit associated with the weight change from the first day to the present. Subtracting the former from the latter yields the portion of the total caloric deficit associated purely with the current period.</p>
 <p>An exactly parallel method is followed to derive the caloric deficit associated with the desired weight loss for the current period. Determining the daily number of calories the user should consider adding or removing from their intake is thereby made simple.</p>
-<p>Footnotes:</p>
 <section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
