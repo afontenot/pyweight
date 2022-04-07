@@ -1,9 +1,9 @@
 M: Make the program translatable
-M: use docstrings instead of existing comment style
-  => good chance to add type annotations in a few places 
 L: Consider switching to compiled ui isntead of loadUi
+L: Switch to a "profile manager" approach with automatically created plan files, like Firefox
 L: Add check for updates
 L: Undo / Redo
 L: Consider reimplementing a headerview to get "Date" on top of the left column
 L: code internals: rename profile -> plan
 L: code internals: use "prefs" name consistently everywhere
+L: clean up the handful of FIXMEs here and there

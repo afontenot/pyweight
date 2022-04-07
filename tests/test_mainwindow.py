@@ -92,7 +92,7 @@ def test_edit_with_autosave(qtbot, mw, monkeypatch):
     monkeypatch.setattr(
         pyweight.wmmainwindow.QMessageBox, "exec", lambda *args: QMessageBox.Discard
     )
-    assert mw.file_modified == False
+    assert not mw.file_modified
     assert mw.windowTitle() == "data.csv - PyWeight"
 
 

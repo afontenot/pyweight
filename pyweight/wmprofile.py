@@ -13,6 +13,13 @@ WCRATE_MIN_KG = -1 * WCRATE_MAX_KG
 
 
 class Profile(WMSettings):
+    """A class to allow instantiating plan settings.
+
+    Users could just call WMSettings directly, but this class provides
+    a way for other classes to get a plan settings instance without
+    knowing anything about its defaults, conversions, etc.
+    """
+
     defaults = {
         "wcrate": -0.4536 / 7,  # kg/day
         "cycle": 14,
@@ -42,6 +49,15 @@ class Profile(WMSettings):
 
 
 class ProfileWindow(QDialog):
+    """Class representing the UI for the Plan Editor.
+
+    Init:
+        profile: the plan settings instance the parent wants us to update,
+            e.g. with inflights; also gets saved when Apply is clicked
+        save_fn: the parent provides a save function callback for Apply
+        mode: set to "new" if the plan has never been saved
+    """
+
     def __init__(self, profile, save_fn, mode, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("pyweight/ui/profilemanager.ui", self)
@@ -81,6 +97,7 @@ class ProfileWindow(QDialog):
         self.show()
 
     def _init_gui(self):
+        """Configure GUI with config state."""
         # set up buttons
         if self.mode == "new":
             self.config_buttons.button(QDialogButtonBox.Cancel).setHidden(True)
@@ -108,10 +125,12 @@ class ProfileWindow(QDialog):
         self._update_height()
 
     def _set_modified(self):
+        """Updates GUI state to indicate edited settings."""
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(True)
         self.config_buttons.button(QDialogButtonBox.Apply).setEnabled(True)
 
     def _apply(self):
+        """Sets GUI and saves when apply is clicked. (callback)"""
         self.config_buttons.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.config_buttons.button(QDialogButtonBox.Apply).setEnabled(False)
         self.save()
@@ -119,6 +138,7 @@ class ProfileWindow(QDialog):
         self._init_gui()
 
     def _enable_disable_bfpitems(self, automatic_mode):
+        """Enables body fat% GUI items depending on automatic mode activated or not"""
         automatic_items = (
             self.bfp_info_button,
             self.age_label,
@@ -134,6 +154,7 @@ class ProfileWindow(QDialog):
             item.setEnabled(not automatic_mode)
 
     def _enable_disable_customgender(self, is_other):
+        """Enables non-binary GUI items depending on custom-gender activation."""
         nonbinary_items = (
             self.sex_label_1,
             self.sex_label_2,
@@ -144,6 +165,7 @@ class ProfileWindow(QDialog):
             item.setVisible(is_other)
 
     def _update_height(self):
+        """Converts dialog height units when metric / imperial is toggled."""
         if self.current_units == "metric":
             value = m_to_cm(self.current_height)
         else:
@@ -155,6 +177,7 @@ class ProfileWindow(QDialog):
         self.height_spinbox.setSuffix(f" {unit}")
 
     def _update_wcrate(self):
+        """Converts dialog weight units when metric / imperial is toggled."""
         value = self.current_wcrate
         if self.current_units == "metric":
             self.wcrate_spin_box.setMinimum(WCRATE_MIN_KG)
@@ -169,9 +192,12 @@ class ProfileWindow(QDialog):
         unit = "kg" if self.current_units == "metric" else "lbs"
         self.wcrate_spin_box.setSuffix(f" {unit}/wk")
 
-    # all these functions create and store functions that modify the setting
-    # they don't actually execute until the user accepts the dialog
     def changed_units(self):
+        """Manages unit changes when unit setting is toggled. (callback)
+
+        Responsible for modifying the setting in the UI and setting
+        class variable; nothing is saved until Apply / OK.
+        """
         new_units = "metric" if self.kg_radio.isChecked() else "imperial"
         if self.current_units == new_units:
             return
@@ -191,6 +217,7 @@ class ProfileWindow(QDialog):
         self._set_modified()
 
     def changed_bfp_mode(self):
+        """Handles toggle for body fat% auto/manual and calls UI setting fn."""
         if self.bfp_automatic_radio.isChecked():
             self.config.body_fat_method.inflight("automatic")
         else:
@@ -199,6 +226,7 @@ class ProfileWindow(QDialog):
         self._set_modified()
 
     def bfp_info_button_clicked(self):
+        """Provides information to the user about how and why we use body fat%."""
         mbox = QMessageBox()
         mbox.setIcon(QMessageBox.Information)
         mbox.setText(
@@ -227,6 +255,10 @@ class ProfileWindow(QDialog):
         self._set_modified()
 
     def changed_height(self, value):
+        """Handles changes to the height setting.
+
+        The underlying data stored in our Settings is metric (meters).
+        """
         if self.current_units == "metric":
             value = cm_to_m(value)
         else:
@@ -236,7 +268,10 @@ class ProfileWindow(QDialog):
         self._set_modified()
 
     def changed_wcrate(self, value):
-        # we convert here from <unit>/wk to <unit>/day
+        """Handles changes to the weight control rate setting.
+
+        We convert here from <unit>/wk to kg/day.
+        """
         value /= 7
         if self.current_units == "imperial":
             value = lbs_to_kg(value)
@@ -245,7 +280,10 @@ class ProfileWindow(QDialog):
         self._set_modified()
 
     def changed_sex_prop(self, value):
-        # we convert here from percentage to decimal
+        """Change the sex (gender) fraction.
+
+        Our Settings stores this as a decimal, not a percent.
+        """
         self.config.gender_prop.inflight(value / 100)
         self._set_modified()
 
@@ -260,5 +298,9 @@ class ProfileWindow(QDialog):
         self._set_modified()
 
     def changed_manual_bfp(self, value):
+        """Change the manual body fat percentage fraction.
+
+        Our Settings stores this as a decimal, not a percent.
+        """
         self.config.manual_body_fat.inflight(value / 100)
         self._set_modified()

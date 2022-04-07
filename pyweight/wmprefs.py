@@ -5,6 +5,13 @@ from pyweight.wmsettings import WMSettings
 
 
 class Preferences(WMSettings):
+    """A class to allow instantiating preferences.
+
+    Users could just call WMSettings directly, but this class provides
+    a way for other classes to get a preferences instance without
+    knowing anything about its defaults, conversions, etc.
+    """
+
     defaults = {
         "open_prev": True,
         "auto_save_data": False,
@@ -19,6 +26,13 @@ class Preferences(WMSettings):
 
 
 class PreferencesWindow(QDialog):
+    """A class to manage the preferences window UI.
+
+    Init:
+        prefs: the Preferences instance the parent wants us to manage,
+            e.g. save our inflights to
+    """
+
     def __init__(self, prefs, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("pyweight/ui/prefs.ui", self)
@@ -33,8 +47,6 @@ class PreferencesWindow(QDialog):
 
         self.reopen_cbox.setChecked(bool(self.config.open_prev))
         self.auto_save_cbox.setChecked(bool(self.config.auto_save_data))
-        print(self.config)
-        print(bool(self.config.auto_save_data))
 
         # connect signals
         self.reopen_cbox.stateChanged.connect(self.reopen_toggled)

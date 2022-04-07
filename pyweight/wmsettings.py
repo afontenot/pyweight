@@ -1,10 +1,28 @@
 from PyQt5.QtCore import QSettings
 
 
-# A wrapped Setting object that behaves like its underlying
-# value, but contains a (passed) function that stores an in
-# flight change to its value that hasn't yet been saved.
 class Setting:
+    """A wrapped Setting object that behaves like its underlying value.
+
+    Do not create instances of this class directly, call `get_setting` instead.
+
+    Instances of this class should also inherit a basic Python type (int, str, etc).
+
+    Objects of this class behave (in most cases, use caution) exactly like the
+    types they mimic, but this class provides an additional method to class
+    owners (Settings instances), in that they contain a callback intended to
+    store an inflight (i.e. modified setting) on the parent.
+
+    The parent can implement methods to save or flush these settings as desired.
+    Note that Setting instances are read-only; attempts to edit them should change
+    attributes on the parent Settings instance instead.
+
+    Init:
+        name: the name of the Setting (FIXME: unused?)
+        value: the underlying value stored in the setting; never modified
+        inflight: the method provided by the parent to save inflights
+    """
+
     def __init__(self, name, value, inflight):
         self.__name = name
         # there's nothing wrong, in theory, with using a Setting as a value
@@ -13,12 +31,17 @@ class Setting:
         self.__inflight = inflight
 
     def inflight(self, value):
+        """Set an inflight value of the Setting on the parent Settings."""
         self.__inflight(value)
 
 
-# class builder function: returns an appropriate subclass of Setting
-# for the value provided; special handling for bools (can't be sublassed)
 def get_setting(name, value, inflight):
+    """Returns an appropriate subclass of Setting for the type.
+
+    Usually we want a transparent class that inherits both the Setting
+    class and the type of the value given. However, bools are singletons
+    in Python, so they require special handling.
+    """
     if isinstance(value, bool):
 
         class BoolSetting(Setting):
@@ -35,11 +58,25 @@ def get_setting(name, value, inflight):
     return VarSetting(name, value, inflight)
 
 
-# A simple subclass of QSettings to provide slighter better behavior
-# including proper handling of type conversions and defaults
-# Each property specified in the `settings` dict can be accessed
-# directly as a property of a WmSettings instance.
 class WMSettings:
+    """A simple subclass of QSettings providing better behavior.
+
+    Properly handles type conversions and defaults.
+    Provides facilities for saving inflight settings, and perforaming
+    coversions. Each property specified in the `settings` dict can be
+    accessed directly as a property of a WMSettings instance.
+
+    This class should be subclassed for convenience.
+
+    Init:
+        settings: a dict mapping all available settings to their defaults
+        conversions: a dict mapping settings to type conversions where needed
+        path: when given, use a specific INI file for settings (else Qt default)
+
+    Attributes:
+        [settings]: all settings known to the class are available as attributes
+    """
+
     def __init__(self, settings, conversions, path=None):
         if path:
             self.__qs = QSettings(path, QSettings.IniFormat)
@@ -76,12 +113,12 @@ class WMSettings:
         else:
             raise AttributeError(f"{attr} is not a valid setting for {self}.")
 
-    # save inflight
     def save(self):
+        """Safe inflights to the underlying QSettings."""
         for key, value in self.__inflight.items():
             self.__setattr__(key, value)
         self.flush()
 
-    # clear inflight
     def flush(self):
+        """Delete all inflights."""
         self.__inflight.clear()

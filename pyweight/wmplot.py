@@ -7,6 +7,12 @@ from matplotlib.figure import Figure
 
 
 class Canvas(FigureCanvasQTAgg):
+    """A wrapper class for matplotlib's Canvas for Qt.
+
+    The class provides convenient defaults as static attributes.
+    Mostly we just store a figure and plot WeightTracker objects to it.
+    """
+
     locator = dates.AutoDateLocator(interval_multiples=False)
     locator.intervald[rrule.HOURLY] = [24]
     locator.intervald[rrule.MINUTELY] = [24 * 60]
@@ -27,8 +33,12 @@ class Canvas(FigureCanvasQTAgg):
         self.fig.clear()
         self.axes = self.fig.add_subplot(111)
 
-    # make a MPL canvas containing the requested plot
     def plot(self, wtracker):
+        """Plots the WeightTracker instance to our stored axes.
+
+        Args:
+            wtracker: the WeightTracker instance to plot (see wmbodymodel.py)
+        """
         self.clear()
 
         # plot using the original independent variable, the date, to get nicer output
@@ -64,7 +74,7 @@ class Canvas(FigureCanvasQTAgg):
         self.axes.set_xlabel("Date", labelpad=15)
         self.axes.set_ylabel(wtracker.data.weight_colname, labelpad=15)
 
-        # pick reasonable values if we haven't seen enough data
+        # pick a reasonable date range if we haven't seen enough data
         if (wtracker.data.end_date - wtracker.data.start_date).days < 14:
             self.axes.set_xlim(
                 left=wtracker.data.start_date + timedelta(days=-1),
