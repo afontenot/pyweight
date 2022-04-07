@@ -22,6 +22,7 @@ class PreferencesWindow(QDialog):
     def __init__(self, prefs, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("pyweight/ui/prefs.ui", self)
+        self.setFixedSize(self.size())
 
         # Preferences class in use by parent window
         self.config = prefs

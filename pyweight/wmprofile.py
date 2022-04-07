@@ -45,6 +45,7 @@ class ProfileWindow(QDialog):
     def __init__(self, profile, save_fn, mode, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("pyweight/ui/profilemanager.ui", self)
+        self.setFixedSize(self.size())
 
         # the Profile class in use by the parent
         self.config = profile
