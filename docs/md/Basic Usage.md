@@ -101,7 +101,7 @@ how closely you have adhered to your diet.
 
 In this example, the user has adhered quite closely to their intended
 diet, and so PyWeight suggests a change of only 10 calories per day.
-Such a value is small enough that no sigficant chances to one's meal
+Such a value is small enough that no significant chances to one's meal
 plan would be called for. A larger difference, of 100 calories a day
 or more, would suggest a tweak is needed.
 
@@ -116,7 +116,7 @@ calorie intake, it wouldn't make sense to continue the straight line
 from the previous period of your diet. If you eat less than before,
 we should expect your weight of weight loss to increase. Therefore
 PyWeight will begin a new linear segment for the diet every time it
-suggests an adjustment. Each new segment has an extra consraint: it
+suggests an adjustment. Each new segment has an extra constraint: it
 is forced to be continuous with each preceding segment. See the
 [Technical Concepts](Technical%20Concepts.html) page for more about
 this.

@@ -496,7 +496,7 @@ with least squares. This mirrors the behavior of a linear regression,
 but adds the additional constraint that the resulting fit must be
 continuous.
 
-A fit of this type means that the data must be reinterpolated
+A fit of this type means that the data must be re-interpolated
 whenever a point is added or edited, but on any modern hardware these
 fits are fast enough for this to be a negligible concern.
 

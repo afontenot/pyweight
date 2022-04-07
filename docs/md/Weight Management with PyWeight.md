@@ -12,7 +12,7 @@ to be the result of water weight than anything to be concerned with.
 
 ### Scales
 
-PyWeight works best if you have an accurate scale, preferrably a
+PyWeight works best if you have an accurate scale, preferably a
 digital one, with measurements to at least 0.2 pounds (0.1 kg).
 
 Any such scale will do, you don't need any advanced features --- and

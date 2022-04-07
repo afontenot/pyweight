@@ -53,7 +53,7 @@ PyWeight's source dependencies.
 
 PyWeight is known to be able to start on macOS, but has not been
 tested beyond that. We're currently looking for someone with the
-knowledge to package PyWeight as a macOS application in a dmg file.
+knowledge to package PyWeight as a macOS application in a DMG file.
 If you can help with this, please file an issue.
 
 ## Running PyWeight
