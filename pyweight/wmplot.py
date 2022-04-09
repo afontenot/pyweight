@@ -1,7 +1,8 @@
 import sys
 from datetime import timedelta
 from dateutil import rrule
-from matplotlib import dates
+
+import matplotlib
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -13,7 +14,7 @@ class Canvas(FigureCanvasQTAgg):
     Mostly we just store a figure and plot WeightTracker objects to it.
     """
 
-    locator = dates.AutoDateLocator(interval_multiples=False)
+    locator = matplotlib.dates.AutoDateLocator(interval_multiples=False)
     locator.intervald[rrule.HOURLY] = [24]
     locator.intervald[rrule.MINUTELY] = [24 * 60]
     locator.intervald[rrule.SECONDLY] = [24 * 60 * 60]
@@ -21,9 +22,18 @@ class Canvas(FigureCanvasQTAgg):
     if sys.platform == "win32":
         date_fmts = [x.replace("-", "#") for x in date_fmts]
     offset_fmts = ["", "%Y", "%Y", "%Y", "%Y", "%Y"]
-    formatter = dates.ConciseDateFormatter(
+    formatter = matplotlib.dates.ConciseDateFormatter(
         locator, formats=date_fmts, offset_formats=offset_fmts
     )
+    # mpl seems not to support using platform default, so we use *my* platform default
+    matplotlib.rcParams["text.hinting"] = "no_hinting"
+    matplotlib.rcParams["font.size"] = 11
+    matplotlib.rcParams["font.sans-serif"] = [
+        "Source Sans Pro",
+        "Helvetica",
+        "Arial",
+        "sans-serif",
+    ]
 
     def __init__(self, dpi=96):
         self.fig = Figure(dpi=dpi)
