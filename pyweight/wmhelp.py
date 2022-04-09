@@ -26,7 +26,7 @@ def try_find_docs():
     paths = ["./docs", "../docs", "/usr/share/pyweight/docs"]
     for path in paths:
         if os.path.exists(path + "/html/index.html"):
-            return path + "/html/index.html"
+            return os.path.abspath(path + "/html/index.html")
 
 
 def open_help():
@@ -40,7 +40,7 @@ def open_help():
     """
     mime = shutil.which("xdg-mime")
     xdgopen = shutil.which("xdg-open")
-    docpath = try_find_docs()
+    doc_path = try_find_docs()
     if mime and xdgopen:
         # note: the typo in the query is on purpose
         # this is currently WIP for testing
@@ -49,7 +49,7 @@ def open_help():
         if help_scheme_handler != "":
             subprocess.run(["xdg-open", "help:/pyweight"])
             return
-    if docpath:
-        webbrowser.open(docpath)
+    if doc_path:
+        webbrowser.open(doc_path)
     else:
         webbrowser.open(webdocs)
