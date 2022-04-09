@@ -16,6 +16,9 @@
   <property name="windowTitle">
    <string>Preferences - PyWeight</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="pyweight"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox_3">

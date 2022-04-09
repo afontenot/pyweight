@@ -16,6 +16,9 @@
   <property name="windowTitle">
    <string>Profile - PyWeight</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="pyweight"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
@@ -529,7 +532,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="bfp_mode_buttongroup"/>
   <buttongroup name="units_buttongroup"/>
+  <buttongroup name="bfp_mode_buttongroup"/>
  </buttongroups>
 </ui>

@@ -3,7 +3,7 @@ import os
 
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QPixmap, QKeySequence
+from PyQt5.QtGui import QIcon, QPixmap, QKeySequence
 from PyQt5.QtWidgets import (
     QDialog,
     QFileDialog,
@@ -40,6 +40,10 @@ class MainWindow(QMainWindow):
         self.app = app
         super().__init__(*args, **kwargs)
         uic.loadUi("pyweight/ui/main.ui", self)
+
+        # for environments that don't set an icon theme, use our own
+        if QIcon.themeName() == "":
+            QIcon.setThemeName("hicolor")
 
         # disable save until a file is edited
         self.action_save_file.setEnabled(False)

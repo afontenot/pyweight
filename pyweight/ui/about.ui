@@ -16,6 +16,9 @@
   <property name="windowTitle">
    <string>About - PyWeight</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="pyweight"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
