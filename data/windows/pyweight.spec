@@ -9,6 +9,7 @@ a = Analysis(['../../pyweight/__main__.py'],
              binaries=[],
              datas=[
                  ('../../README.md', '.'),
+                 ('../../LICENSE', '.'),
                  ('../../docs/html', 'docs/html'),
                  ('../../docs/images', 'docs/images'),
                  ('../../licenses', 'licenses'),
