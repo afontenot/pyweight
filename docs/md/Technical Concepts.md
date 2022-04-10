@@ -417,7 +417,7 @@ body fat percentage using a variety of other variables. All of them
 have flaws. Some haven't been tested; others have been tested but
 have been found to be inaccurate.
 
-One of the more promising methods is by Lee et al.[^9] A number of
+One of the more promising methods is by Lee et al.[^8] A number of
 issues has resulted in our ruling it out at present. The model is
 linear equation of a number of variables, but most of the other
 promising models show some non-linear effects. On the positive side,
@@ -428,12 +428,12 @@ all races other than the few considered by the model, and it is not
 obvious how to do this in a reasonable way. Some other potential
 issues are addressed in comments in the source file.
 
-At present PyWeight uses the CUN-BAE equation[^10]. This approach is
+At present PyWeight uses the CUN-BAE equation[^9]. This approach is
 limited in that all the subjects in the study were white Americans,
 but this does have the benefit that race isn't an explicit variable
 in the model (which is at present unworkable for the reasons given
 above). This model has the strong benefit that it has been subjected
-to external validation by Cui et. al[^11] and found to be quite
+to external validation by Cui et. al[^10] and found to be quite
 accurate, including surprisingly so for non-White Americans.
 
 This model is a quadratic equation in weight, age, height, and sex.
@@ -554,23 +554,18 @@ doi: 10.1016/S0140-6736(11)60812-X. PMID: 21872751; PMCID: PMC3880593.
 Nutr Rev. 1987 Aug;45(8):225-31.
 doi: 10.1111/j.1753-4887.1987.tb02684.x. PMID: 3306482.
 
-[^8]: Hall, Kevin D et al. “Energy balance and its components:
-implications for body weight regulation.” The American journal of
-clinical nutrition vol. 95,4 (2012): 989-94.
-doi:10.3945/ajcn.112.036350
-
-[^9]: Lee, Dong Hoon et al. “Development and validation of
+[^8]: Lee, Dong Hoon et al. “Development and validation of
 anthropometric prediction equations for lean body mass, fat mass and
 percent fat in adults using the National Health and Nutrition
 Examination Survey (NHANES) 1999-2006.” The British journal of
 nutrition vol. 118,10 (2017): 858-866.
 doi:10.1017/S0007114517002665
 
-[^10]: Gómez-Ambrosi, Javier et al. “Clinical usefulness of a new
+[^9]: Gómez-Ambrosi, Javier et al. “Clinical usefulness of a new
 equation for estimating body fat.” Diabetes care vol. 35,2 (2012):
 383-8. doi:10.2337/dc11-1334
 
-[^11]: Cui, Zhaohui et al. “Evaluation of anthropometric equations
+[^10]: Cui, Zhaohui et al. “Evaluation of anthropometric equations
 to assess body fat in adults: NHANES 1999-2004.” Medicine and
 science in sports and exercise vol. 46,6 (2014): 1147-58.
 doi:10.1249/MSS.0000000000000213
