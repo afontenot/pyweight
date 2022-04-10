@@ -30,6 +30,9 @@
         font-size: 0.9em;
         padding: 1em;
       }
+      h1 {
+        font-size: 1.8em;
+      }
     }
     @media print {
       body {
@@ -134,6 +137,12 @@
     #TOC li {
       list-style: none;
     }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
     #TOC a:not(:hover) {
       text-decoration: none;
     }
@@ -153,7 +162,8 @@
 <p>Welcome to the PyWeight documentation!</p>
 <ol type="1">
 <li><a href="Introduction.html">Introduction</a></li>
-<li><a href="Weight%20Management%20with%20PyWeight.html">Weight Management with PyWeight</a></li>
+<li><a href="Weight%20Management%20with%20PyWeight.html">Weight
+Management with PyWeight</a></li>
 <li><a href="Basic%20Usage.html">Basic Usage</a></li>
 <li><a href="Technical%20Concepts.html">Technical Concepts</a></li>
 </ol>
