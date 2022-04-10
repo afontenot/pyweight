@@ -17,7 +17,7 @@ problems:
    basis, making it difficult to track progress
  
  * Determining a meal plan on the basis of calories in - calories out
-   (CICO) is difficult, because determining your daily energy
+   (CICO) is difficult, because determining your total daily energy
    expenditure (TDEE) is hard, and accurately counting every calorie
    you eat is arguably even harder.
 
@@ -112,7 +112,8 @@ It is easy to see that the assumption of a constant energy
 requirement is incorrect. A person who weighs 150 kilograms will need
 more energy than one who weighs 100 kilograms, simply in virtue of
 needing to expend more energy to move the extra 50 kilograms from
-point A to point B. Published equations for basal metabolic response,
+point A to point B, and because those cells need energy to sustain
+themselves. Published equations for basal metabolic response,
 and therefore also for TDEE, rely on body weight, height, and other
 characteristics. Since one's weight changes over the course of a
 diet, one's energy requirements will also.
@@ -143,7 +144,7 @@ Solving this equation suggests that someone who eats like a
 metabolically identical person with their goal weight will
 exponentially approach that weight.
 
-![Fig 1. Weight changes assuming linear energy use](../images/weight_over_time.svg)
+![Fig 1. Weight changes over time, assuming linear energy use](../images/weight_over_time.svg)
 
 Unfortunately, while it makes for a nice graph, the assumption that
 the energy expenditure of dieters varies linearly with their current
