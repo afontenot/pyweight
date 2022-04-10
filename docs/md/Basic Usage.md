@@ -46,7 +46,7 @@ file that tracks your weight over time. It is kept separate from the
 plan file so that you can easily import it into other programs or
 spreadsheet applications, or back it up separately.
 
-**Note:** the **data** file always uses Kilograms as its weight unit,
+**Note:** the **data** file always uses kilograms as its weight unit,
 no matter what you set in your **plan**. This is so that you can
 switch from one unit to the other as often as you like, without
 rounding errors building up in the file over time. It also means that
@@ -114,7 +114,7 @@ large swings caused by changes in water weight and meal size.
 If the program has suggested you make a change, and you reduce your
 calorie intake, it wouldn't make sense to continue the straight line
 from the previous period of your diet. If you eat less than before,
-we should expect your weight of weight loss to increase. Therefore
+we should expect your rate of weight loss to increase. Therefore
 PyWeight will begin a new linear segment for the diet every time it
 suggests an adjustment. Each new segment has an extra constraint: it
 is forced to be continuous with each preceding segment. See the
@@ -177,7 +177,7 @@ doing could easily prove more annoying than helpful. However, as
 indicated by the advice text, you should *not* use the adjustment
 value to make changes to your meal plans except on the designated
 adjustment day. This is because the program is built around the
-assumption that your weight will change at a linear weight, making
+assumption that your weight will change at a linear rate, making
 a simple linear regression a reasonable approach for estimating
 your true weight loss over time. See the
 [Technical Concepts](Technical%20Concepts.html) page for more.
