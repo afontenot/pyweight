@@ -532,40 +532,44 @@ associated with the desired weight loss for the current period.
 Determining the daily number of calories the user should consider
 adding or removing from their intake is thereby made simple.
 
-[^1]: Hall K. D. (2008). What is the required energy deficit per unit weight 
-loss?. International journal of obesity (2005), 32(3), 573–576.
-<https://pubmed.ncbi.nlm.nih.gov/17848938/>
+[^1]: Hall, K D. “What is the required energy deficit per unit
+weight loss?.” *International journal of obesity* (2005) vol. 32,3
+(2008): 573-6. doi:10.1038/sj.ijo.0803720
 
-[^2]: The Body Weight Planner by the National Institute of Diabetes and
-Digestive and Kidney Diseases: <https://www.niddk.nih.gov/bwp>
+[^2]: The Body Weight Planner by the National Institute of Diabetes
+and Digestive and Kidney Diseases: <https://www.niddk.nih.gov/bwp>
 
 [^3]: blog post
 
-[^4]: https://pubmed.ncbi.nlm.nih.gov/11063433/
+[^4]: Weinsier, R L et al. “Do adaptive changes in metabolic rate
+favor weight regain in weight-reduced individuals? An examination
+of the set-point theory.” *The American journal of clinical
+nutrition* vol. 72,5 (2000): 1088-94. doi:10.1093/ajcn/72.5.1088
 
-[^5]: https://pubmed.ncbi.nlm.nih.gov/17367567/
+[^5]: Hall, Kevin D. “Body fat and fat-free mass
+inter-relationships: Forbes's theory revisited.” *The British
+journal of nutrition* vol. 97,6 (2007): 1059-63.
+doi:10.1017/S0007114507691946
 
-[^6]: Hall KD, Sacks G, Chandramohan D, Chow CC, Wang YC,
-Gortmaker SL, Swinburn BA. Quantification of the effect of energy
-imbalance on bodyweight. Lancet. 2011 Aug 27;378(9793):826-37.
-doi: 10.1016/S0140-6736(11)60812-X. PMID: 21872751; PMCID: PMC3880593.
+[^6]: Hall, Kevin D et al. “Quantification of the effect of energy
+imbalance on bodyweight.” *Lancet* (London, England) vol. 378,9793
+(2011): 826-37. doi:10.1016/S0140-6736(11)60812-X
 
-[^7]: Forbes GB. Lean body mass-body fat interrelationships in humans.
-Nutr Rev. 1987 Aug;45(8):225-31.
-doi: 10.1111/j.1753-4887.1987.tb02684.x. PMID: 3306482.
+[^7]: Forbes, G B. “Lean body mass-body fat interrelationships in
+humans.” *Nutrition reviews* vol. 45,8 (1987): 225-31.
+doi:10.1111/j.1753-4887.1987.tb02684.x
 
 [^8]: Lee, Dong Hoon et al. “Development and validation of
-anthropometric prediction equations for lean body mass, fat mass and
-percent fat in adults using the National Health and Nutrition
-Examination Survey (NHANES) 1999-2006.” The British journal of
-nutrition vol. 118,10 (2017): 858-866.
-doi:10.1017/S0007114517002665
+anthropometric prediction equations for lean body mass, fat mass
+and percent fat in adults using the National Health and Nutrition
+Examination Survey (NHANES) 1999-2006.” *The British journal of
+nutrition* vol. 118,10 (2017): 858-866.
 
 [^9]: Gómez-Ambrosi, Javier et al. “Clinical usefulness of a new
-equation for estimating body fat.” Diabetes care vol. 35,2 (2012):
+equation for estimating body fat.” *Diabetes care* vol. 35,2 (2012):
 383-8. doi:10.2337/dc11-1334
 
 [^10]: Cui, Zhaohui et al. “Evaluation of anthropometric equations
-to assess body fat in adults: NHANES 1999-2004.” Medicine and
-science in sports and exercise vol. 46,6 (2014): 1147-58.
+to assess body fat in adults: NHANES 1999-2004.” *Medicine and
+science in sports and exercise* vol. 46,6 (2014): 1147-58.
 doi:10.1249/MSS.0000000000000213
