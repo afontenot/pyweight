@@ -5,7 +5,7 @@ application. Ordinary users are not expected to need to read this.
 
 Users who wish to read a light overview of the ideas here and a
 discussion of weight loss using PyWeight may find the
-[essay]()
+[essay](https://adamfontenot.com/post/statistics-assisted_weight_loss_with_pyweight)
 by PyWeight's primary author informative.
 
 ## How PyWeight works
@@ -539,7 +539,7 @@ weight loss?.” *International journal of obesity* (2005) vol. 32,3
 [^2]: The Body Weight Planner by the National Institute of Diabetes
 and Digestive and Kidney Diseases: <https://www.niddk.nih.gov/bwp>
 
-[^3]: blog post
+[^3]: <https://adamfontenot.com/post/statistics-assisted_weight_loss_with_pyweight>
 
 [^4]: Weinsier, R L et al. “Do adaptive changes in metabolic rate
 favor weight regain in weight-reduced individuals? An examination

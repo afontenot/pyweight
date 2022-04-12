@@ -71,7 +71,8 @@ occasionally miss a day, but some other program would likely serve
 your needs better if you plan to only record your weight on a weekly
 basis. For the reasoning behind this behavior, see the
 [Technical Concepts](Technical%20Concepts.html) page or the
-associated [blog post]().
+associated
+[blog post](https://adamfontenot.com/post/statistics-assisted_weight_loss_with_pyweight).
 
 You use PyWeight by entering your weight regularly in the left
 pane. Anything you enter will be automatically added to the graph in

@@ -7,7 +7,7 @@ hit targets for weight loss, gains, or even maintenance.
 
 To learn more about why you might want to use PyWeight, check the
 [project wiki]() or read the
-[blog post]()
+[blog post](https://adamfontenot.com/post/statistics-assisted_weight_loss_with_pyweight)
 about weight loss and PyWeight's development.
 
 ## Installing PyWeight
