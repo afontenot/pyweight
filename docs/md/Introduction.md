@@ -39,11 +39,11 @@ issue.
 Experimental builds of the program are available for Windows in the
 [releases](https://github.com/afontenot/pyweight/releases).
 
-These builds are available as single executable files and do not need
-to be installed.
-
-We would like to provide installation and updates for PyWeight on
-Windows. If you want to help with this, please file an issue.
+These builds provide a basic installation of PyWeight. Once you
+install PyWeight, it should be available from your Start Menu.
+Automatic updates are currently not available for these experimental
+builds. Please check Github regularly to make sure you stay up to
+date with the latest releases.
 
 ### Using PyWeight on other platforms
 

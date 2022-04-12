@@ -83,8 +83,8 @@ density of fat tissue. No information about the individual or their
 diet is required.
 
 Because of the obvious usefulness of such a simplification, it is
-unsurprising that the claim that "a pound of fat contains 3500
-calories" has become a piece of common "knowledge". If this is true,
+unsurprising that the claim that a pound of fat contains 3500
+calories has become a piece of common "knowledge". If this is true,
 then *any* person who wants to lose 50 pounds needs to achieve a
 total deficit of 175,000 calories. They will therefore lose this 50
 pounds via any method of achieving this deficit, whether it takes
@@ -112,11 +112,11 @@ It is easy to see that the assumption of a constant energy
 requirement is incorrect. A person who weighs 150 kilograms will need
 more energy than one who weighs 100 kilograms, simply in virtue of
 needing to expend more energy to move the extra 50 kilograms from
-point A to point B, and because those cells need energy to sustain
-themselves. Published equations for basal metabolic response,
-and therefore also for TDEE, rely on body weight, height, and other
-characteristics. Since one's weight changes over the course of a
-diet, one's energy requirements will also.
+point A to point B, and because those 50 kilograms contain cells 
+which need energy to sustain themselves. Published equations for
+basal metabolic response, and therefore also for TDEE, rely on body
+weight, height, and other characteristics. Since one's weight changes
+over the course of a diet, one's energy requirements will also.
 
 For some common estimates of basal metabolic response, such as the
 Mifflin - St. Jeor equation, energy needs are linear with body
@@ -202,9 +202,9 @@ to provide them with a recommended number of calories to consume, we
 would have to take all this into account. However, we don't do this.
 The PyWeight approach is to determine the *difference* between the
 user's caloric target and their intake. Metabolism obviously has a
-direct effect on the total number of calories consumed, but it has an
-almost negligible effect on the energy density of given unit of
-weight loss.
+direct effect on the number of calories required to maintain one's
+weight, but it has an almost negligible effect on the energy density
+of given unit of weight loss.
 
 ## The composition of weight loss
 
@@ -252,7 +252,7 @@ $$L = 10.4 \ln F + A$$
 for a constant $A$ specific to each body type. 
 
 If we let $L_i$, $L_f$, and
-$F_i$, $F_f$ describe the body's masses before
+$F_i$, $F_f$ describe the body's lean and fat masses before
 and after weight loss (respectively), then since by definition
 $L_f = L_i + \Delta L$,
 
@@ -328,7 +328,7 @@ weight loss over time, but the approach to dieting that this tool
 takes is (in the opinion of the PyWeight authors) flawed. 
 
 The NIDDK model assumes that weight changes will be achieved via a
-constant intake of whatever the number of calories is appropriate to
+constant intake of whatever number of calories is appropriate to
 hit the goal weight by some date.
 
 For large changes in weight, the results are often unreasonable. The
@@ -449,7 +449,7 @@ A simplistic approach, but clearly an improvement on nothing at all,
 is to allow the user to select their position on a spectrum from male
 to female. It is not wholly unreasonable to expect that a PyWeight
 user on hormone replacement therapy might expect to have body fat
-somewhere in between that typical for typical cisgender male and
+somewhere in between that typical of cisgender male and
 female human bodies. At present, then, PyWeight makes this choice
 available to users as a simple slider.
 

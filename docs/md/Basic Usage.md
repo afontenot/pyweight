@@ -17,7 +17,7 @@ including your height, age, and gender. PyWeight uses this
 information in order to provide more accurate advice to you about how
 to adjust your calorie intake. PyWeight is an entirely offline and
 open source application, so you can be assured that this data is not
-sent to anyone.
+sent to anyone, even the developers of PyWeight.
 
 If you click "No" at the guide prompt, or ever need to create a new
 **plan**, you can do so from the program's File menu.
@@ -101,7 +101,7 @@ how closely you have adhered to your diet.
 
 In this example, the user has adhered quite closely to their intended
 diet, and so PyWeight suggests a change of only 10 calories per day.
-Such a value is small enough that no significant chances to one's meal
+Such a value is small enough that no significant changes to one's meal
 plan would be called for. A larger difference, of 100 calories a day
 or more, would suggest a tweak is needed.
 
@@ -109,9 +109,10 @@ Notice that the program has drawn a straight line through the data,
 indicating what it estimates as the true weight of the user on each
 date. Such an estimate is usually much more accurate than what the
 scale said on that day (and you recorded), because it ignores the
-large swings caused by changes in water weight and meal size.
+large swings caused by changes in water weight and variations in meal
+size.
 
-If the program has suggested you make a change, and you reduce your
+If the program has suggested you make a change, and you modify your
 calorie intake, it wouldn't make sense to continue the straight line
 from the previous period of your diet. If you eat less than before,
 we should expect your rate of weight loss to increase. Therefore
@@ -165,7 +166,8 @@ up with a reasonable target.
 Here you can select how often you want PyWeight to provide you with
 advice on modifying your diet to hit your weight management target.
 Values from 7 to 30 days are selectable; values from 14 to 21 days
-are recommended.
+are recommended. In general, the slower you are trying to lose
+weight, the longer your dieting periods should be.
 
 You can also choose whether or not to show the adjustment value
 every day --- as opposed to only on the diet adjustment day. The
@@ -231,7 +233,7 @@ approximation of how their body might behave during weight changes.
 
 The result is clearly suboptimal, but we believe we have made the
 best compromise possible in view of the state of the literature.
-Users who have additional recommendation or can point to relevant
+Users who have additional recommendations or can point to relevant
 research are welcomed to file an issue.
 
 If no gender is selected, PyWeight will treat the user as an
