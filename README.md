@@ -18,7 +18,7 @@ on. PyWeight should run on any PC platform with support for its
 dependencies, but has only been tested on Linux and Windows.
 
 On Windows, you can download an experimental build from the
-[releases]().
+[releases](https://github.com/afontenot/pyweight/releases).
 
 On Linux (and possibly macOS), it can be run from source. You can
 download the latest release or run it directly from the source
