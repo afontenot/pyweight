@@ -26,10 +26,10 @@ repository.
 
 Dependencies:
 
- * Python (3.6+)
- * PyQt5
- * matplotlib
- * scipy
+ * Python (3.8+)
+ * PyQt5 (5.14+)
+ * matplotlib (3.1+)
+ * scipy (1.3+)
  
 For more on installing PyWeight, check the
 [wiki](https://githubcom/afontenot/pyweight/wiki).

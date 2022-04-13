@@ -26,7 +26,7 @@ class Canvas(FigureCanvasQTAgg):
         locator, formats=date_fmts, offset_formats=offset_fmts
     )
     # mpl seems not to support using platform default, so we use *my* platform default
-    matplotlib.rcParams["text.hinting"] = "no_hinting"
+    matplotlib.rcParams["text.hinting"] = "none"
     matplotlib.rcParams["font.size"] = 11
     matplotlib.rcParams["font.sans-serif"] = [
         "Source Sans Pro",
